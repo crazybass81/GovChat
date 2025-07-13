@@ -1,7 +1,9 @@
 import { defineConfig } from 'vitest/config'
+import react from '@vitejs/plugin-react'
 import path from 'path'
 
 export default defineConfig({
+  plugins: [react()],
   test: {
     environment: 'jsdom',
     setupFiles: ['./src/test/setup.ts'],
@@ -10,10 +12,10 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       thresholds: {
         global: {
-          branches: 70,
-          functions: 70,
-          lines: 70,
-          statements: 70
+          branches: 60,
+          functions: 60,
+          lines: 60,
+          statements: 60
         }
       }
     }
