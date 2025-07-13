@@ -1,16 +1,15 @@
-#!/usr/bin/env python3
 """
-시스템 헬스체크 스크립트
+시스템 헬스체크 테스트
 """
 
 import time
-
+import pytest
 import requests
 
 API_BASE = "https://mda1qa36df.execute-api.us-east-1.amazonaws.com/prod"
 
 
-def health_check():
+def test_health_check():
     """전체 시스템 헬스체크"""
     endpoints = [
         ("/question", {"userProfile": {"region": "서울"}, "policyText": "만 39세 이하"}),
@@ -54,5 +53,14 @@ def health_check():
     return results
 
 
+def test_individual_endpoints():
+    """개별 엔드포인트 테스트"""
+    response = requests.post(
+        f"{API_BASE}/question",
+        json={"userProfile": {"region": "서울"}, "policyText": "만 39세 이하"},
+        timeout=10
+    )
+    assert response.status_code == 200
+    
 if __name__ == "__main__":
-    health_check()
+    test_health_check()

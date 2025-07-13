@@ -10,8 +10,11 @@ from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.metrics import MetricUnit
 from common.xss_protection import sanitize_input, secure_headers
 from common.api_auth import verify_admin_token
+from error_handler import handle_error
+from response_builder import build_response
+from logger_config import setup_logger
 
-logger = Logger()
+logger = setup_logger(__name__)
 tracer = Tracer()
 metrics = Metrics()
 
@@ -59,13 +62,8 @@ def handler(event, context):
             }
             
     except Exception as e:
-        logger.error(f"Admin handler error: {e}")
         metrics.add_metric(name="AdminError", unit=MetricUnit.Count, value=1)
-        return {
-            "statusCode": 500,
-            "headers": secure_headers(),
-            "body": json.dumps({"error": "Internal server error"})
-        }
+        return handle_error(e, "관리자 기능 처리 중 오류가 발생했습니다")
 
 
 @tracer.capture_method
@@ -118,14 +116,10 @@ def _create_project(body, admin_user, headers):
         logger.info(f"Project created by admin: {project_data['project_id']}")
         metrics.add_metric(name="AdminProjectCreate", unit=MetricUnit.Count, value=1)
         
-        return {
-            "statusCode": 201,
-            "headers": headers,
-            "body": json.dumps({
-                "message": "프로젝트가 성공적으로 생성되었습니다.",
-                "project": project_data
-            })
-        }
+        return build_response({
+            "message": "프로젝트가 성공적으로 생성되었습니다.",
+            "project": project_data
+        }, 201)
         
     except json.JSONDecodeError:
         return {
@@ -196,11 +190,7 @@ def _update_project(project_id, body, admin_user, headers):
         logger.info(f"Project updated by admin: {project_id}")
         metrics.add_metric(name="AdminProjectUpdate", unit=MetricUnit.Count, value=1)
         
-        return {
-            "statusCode": 200,
-            "headers": headers,
-            "body": json.dumps({"message": "프로젝트가 성공적으로 수정되었습니다."})
-        }
+        return build_response({"message": "프로젝트가 성공적으로 수정되었습니다."})
         
     except json.JSONDecodeError:
         return {
@@ -250,11 +240,7 @@ def _delete_project(project_id, admin_user, headers):
         logger.info(f"Project deleted by admin: {project_id}")
         metrics.add_metric(name="AdminProjectDelete", unit=MetricUnit.Count, value=1)
         
-        return {
-            "statusCode": 200,
-            "headers": headers,
-            "body": json.dumps({"message": "프로젝트가 성공적으로 삭제되었습니다."})
-        }
+        return build_response({"message": "프로젝트가 성공적으로 삭제되었습니다."})
         
     except Exception as e:
         logger.error(f"Delete project error: {e}")
@@ -274,11 +260,7 @@ def _get_admin_logs(query_params, headers):
         
         logs = response.get("Items", [])
         
-        return {
-            "statusCode": 200,
-            "headers": headers,
-            "body": json.dumps({"logs": logs})
-        }
+        return build_response({"logs": logs})
         
     except Exception as e:
         logger.error(f"Get admin logs error: {e}")

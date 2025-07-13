@@ -18,6 +18,11 @@ def run_command(cmd, cwd=None):
 def main():
     print("🚀 GovChat 배포 시작...")
     
+    # 0. 정리 작업
+    print("🧹 코드베이스 정리 중...")
+    if os.path.exists("/home/ec2-user/gov-support-chat/cleanup.sh"):
+        run_command("bash cleanup.sh", cwd="/home/ec2-user/gov-support-chat")
+    
     # 1. 테스트 실행
     print("📋 테스트 실행 중...")
     run_command("python3 -m pytest tests/ -v --cov=src --cov-report=html", cwd="/home/ec2-user/gov-support-chat")

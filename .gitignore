@@ -90,4 +90,9 @@ cdk.out/
 *.swo
 
 # OS
-Thumbs.db
+Thumbs.db# Build artifacts
+infra/cdk.out/
+infra/.cdk/
+*.pyc
+__pycache__/
+frontend/.next/

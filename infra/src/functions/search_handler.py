@@ -4,8 +4,11 @@
 
 import json
 from aws_lambda_powertools import Logger
+from error_handler import handle_error
+from response_builder import build_response
+from logger_config import setup_logger
 
-logger = Logger()
+logger = setup_logger(__name__)
 
 def handler(event, context):
     """검색 Lambda 핸들러"""
@@ -31,23 +34,10 @@ def handler(event, context):
             }
         ]
         
-        return {
-            'statusCode': 200,
-            'headers': {
-                'Content-Type': 'application/json',
-                'X-Content-Type-Options': 'nosniff',
-                'X-Frame-Options': 'DENY'
-            },
-            'body': json.dumps({
-                'results': results,
-                'total': len(results)
-            })
-        }
+        return build_response({
+            'results': results,
+            'total': len(results)
+        })
         
     except Exception as e:
-        logger.error("Search error", extra={"error": str(e)})
-        return {
-            'statusCode': 500,
-            'headers': {'Content-Type': 'application/json'},
-            'body': json.dumps({'error': 'Internal server error'})
-        }
+        return handle_error(e, "검색 처리 중 오류가 발생했습니다")

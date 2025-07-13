@@ -3786,3 +3786,61 @@ Import trace for requested module:
 ./node_modules/@tanstack/react-query-devtools/build/modern/index.js
 ./src/app/providers.tsx
  ○ Compiling /not-found ...
+ ⨯ ./node_modules/@tanstack/react-query-devtools/build/modern/index.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/@tanstack/react-query-devtools/build/modern/index.js'
+
+Import trace for requested module:
+./node_modules/@tanstack/react-query-devtools/build/modern/index.js
+./src/app/providers.tsx
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/home/ec2-user/gov-support-chat/frontend/node_modules/watchpack'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving 'watchpack/lib/watchpack' in /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack for build dependencies doesn't lead to expected result '/home/ec2-user/gov-support-chat/frontend/node_modules/watchpack/lib/watchpack.js', but to 'Error: Can't resolve 'watchpack/lib/watchpack' in '/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack'' instead. Resolving dependencies are ignored for this path.
+<w>  at unknown 4 watchpack/lib/watchpack
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/swc/index.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
+<w> [webpack.cache.PackFileCacheStrategy] Caching failed for pack: Error: ENOENT: no such file or directory, lstat '/home/ec2-user/gov-support-chat/frontend/node_modules/watchpack'
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Resolving 'watchpack/lib/watchpack' in /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack for build dependencies doesn't lead to expected result '/home/ec2-user/gov-support-chat/frontend/node_modules/watchpack/lib/watchpack.js', but to 'Error: Can't resolve 'watchpack/lib/watchpack' in '/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack'' instead. Resolving dependencies are ignored for this path.
+<w>  at unknown 4 watchpack/lib/watchpack
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack/bundle5.js
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/compiled/webpack/webpack.js
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/plugins/define-env-plugin.js
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/swc/index.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/swc/index.js
+<w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+<w>  at resolve commonjs /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
