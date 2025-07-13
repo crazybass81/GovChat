@@ -68,7 +68,7 @@ jobs:
         working-directory: ./infra
         run: |
           pip install -r requirements.txt
-          pip install ruff mypy
+          pip install ruff mypy bandit safety
 
       - name: Run Python quality checks
         working-directory: ./infra
