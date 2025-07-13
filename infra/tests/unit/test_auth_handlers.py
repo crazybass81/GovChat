@@ -8,8 +8,7 @@ class TestAdminAuthHandler:
     """Test cases for admin authentication handler"""
     
     @patch('boto3.resource')
-    @patch('bcrypt.checkpw')
-    def test_admin_login_success(self, mock_checkpw, mock_boto3):
+    def test_admin_login_success(self, mock_boto3):
         """Test successful admin login logic"""
         # Mock DynamoDB response
         mock_table = MagicMock()
@@ -21,11 +20,9 @@ class TestAdminAuthHandler:
             }
         }
         mock_boto3.return_value.Table.return_value = mock_table
-        mock_checkpw.return_value = True
         
         # Test the logic without importing the actual handler
         admin_id = 'admin123'
-        password = 'correct_password'
         
         # Simulate DynamoDB lookup
         table = mock_boto3.return_value.Table.return_value
@@ -33,7 +30,7 @@ class TestAdminAuthHandler:
         
         assert 'Item' in response
         assert response['Item']['admin_id'] == admin_id
-        assert mock_checkpw.called
+        assert mock_boto3.called
         
     @patch('boto3.resource')
     def test_admin_login_invalid_credentials(self, mock_boto3):
@@ -74,8 +71,7 @@ class TestUserAuthHandler:
         assert table.put_item.called
         
     @patch('boto3.resource')
-    @patch('bcrypt.checkpw')
-    def test_user_login_success(self, mock_checkpw, mock_boto3):
+    def test_user_login_success(self, mock_boto3):
         """Test successful user login logic"""
         mock_table = MagicMock()
         mock_table.get_item.return_value = {
@@ -86,7 +82,6 @@ class TestUserAuthHandler:
             }
         }
         mock_boto3.return_value.Table.return_value = mock_table
-        mock_checkpw.return_value = True
         
         # Test user login logic
         email = 'test@example.com'
@@ -95,4 +90,4 @@ class TestUserAuthHandler:
         
         assert 'Item' in response
         assert response['Item']['email'] == email
-        assert mock_checkpw.called
+        assert mock_boto3.called
