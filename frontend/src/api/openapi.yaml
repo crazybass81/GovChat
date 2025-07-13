@@ -1,0 +1,120 @@
+openapi: 3.1.0
+info:
+  title: PolicyService API
+  version: 1.0.0
+paths:
+  /policies:
+    get:
+      summary: List policies
+      operationId: listPolicies
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Policy"
+    post:
+      summary: Create draft policy
+      operationId: createPolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyDraft"
+      responses:
+        "201":
+          description: Created
+  /policies/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: Get policy
+      operationId: getPolicy
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Policy"
+    put:
+      summary: Update policy
+      operationId: updatePolicy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PolicyDraft"
+      responses:
+        "200":
+          description: Updated
+  /policies/{id}:publish:
+    post:
+      summary: Publish policy
+      operationId: publishPolicy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Published
+  /policies/{id}:rollback:
+    post:
+      summary: Rollback policy
+      operationId: rollbackPolicy
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                ver:
+                  type: string
+              required:
+                - ver
+      responses:
+        "200":
+          description: Rolled back
+components:
+  schemas:
+    Policy:
+      type: object
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+          enum:
+            - DRAFT
+            - PUBLISHED
+        yaml:
+          type: string
+      required:
+        - id
+        - version
+        - status
+        - yaml
+    PolicyDraft:
+      allOf:
+        - $ref: "#/components/schemas/Policy"

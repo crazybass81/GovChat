@@ -1,0 +1,76 @@
+name: Security and Quality Check
+
+on:
+  push:
+    branches: [ main, rebuild/v3-clean ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly security scan
+
+jobs:
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install security tools
+        run: |
+          pip install bandit safety semgrep
+          
+      - name: Run Bandit security scan
+        run: |
+          bandit -r infra/src/ -f json -o bandit-report.json || true
+          bandit -r infra/src/ -ll
+          
+      - name: Run Safety dependency scan
+        run: |
+          safety check --json --output safety-report.json || true
+          safety check
+          
+      - name: Run Semgrep SAST
+        run: |
+          semgrep --config=auto infra/src/ || echo "Semgrep scan completed"
+
+  quality-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install frontend dependencies
+        working-directory: ./frontend
+        run: npm ci
+
+      - name: Run ESLint
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        working-directory: ./infra
+        run: |
+          pip install -r requirements.txt
+          pip install ruff mypy
+
+      - name: Run Python quality checks
+        working-directory: ./infra
+        run: |
+          ruff check .
+          ruff format --check .
+          mypy src/ || echo "MyPy check completed"

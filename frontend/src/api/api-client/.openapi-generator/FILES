@@ -1,0 +1,13 @@
+.gitignore
+.npmignore
+.openapi-generator-ignore
+api.ts
+base.ts
+common.ts
+configuration.ts
+docs/DefaultApi.md
+docs/Policy.md
+docs/PolicyDraft.md
+docs/RollbackPolicyRequest.md
+git_push.sh
+index.ts

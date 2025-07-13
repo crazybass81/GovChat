@@ -1,0 +1,36 @@
+{
+    "budget": [
+        {
+            "resourceCounts": [
+                {
+                    "resourceType": "script",
+                    "max": 10
+                },
+                {
+                    "resourceType": "image",
+                    "max": 20
+                }
+            ],
+            "resourceSizes": [
+                {
+                    "resourceType": "script",
+                    "max": 150
+                },
+                {
+                    "resourceType": "image",
+                    "max": 300
+                }
+            ],
+            "timing": [
+                {
+                    "metric": "first-contentful-paint",
+                    "max": 2000
+                },
+                {
+                    "metric": "largest-contentful-paint",
+                    "max": 2500
+                }
+            ]
+        }
+    ]
+}

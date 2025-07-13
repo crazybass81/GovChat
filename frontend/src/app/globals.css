@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700&display=swap');
+
+/* 커스텀 컴포넌트 */
+@layer components {
+  .btn { @apply px-4 py-2 rounded-md font-medium transition; }
+  .btn-primary { @apply btn bg-primary text-white hover:bg-blue-600; }
+  .btn-danger  { @apply btn bg-error text-white hover:bg-red-600; }
+}

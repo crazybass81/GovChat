@@ -1,0 +1,34 @@
+name: CI/CD Pipeline
+
+# rebuild/v3-clean 브랜치로의 풀 리퀘스트 시 파이프라인을 트리거
+on:
+  pull_request:
+    branches:
+      - rebuild/v3-clean
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 코드 체크아웃
+        uses: actions/checkout@v3
+        # 리포지토리에서 최신 코드를 가져옵니다
+
+      - name: Node.js 설정
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # 호환성을 위해 Node.js 버전 18 사용
+
+      - name: 의존성 설치
+        run: npm install # 프로젝트 의존성 설치
+
+      - name: 린트 실행
+        run: npm run lint # 코드 린트 오류 확인
+
+      - name: 테스트 실행
+        run: npm test # 유닛 및 통합 테스트 실행
+
+      - name: 배포
+        if: github.event_name == 'push'
+        run: npm run deploy # 푸시 이벤트 시 애플리케이션 배포
