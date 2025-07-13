@@ -1,354 +1,55 @@
-Below is a **sprint‑ready work order** that tells Q Developer exactly what to build, **including finished Tailwind/React (Next 14 App Router) code blocks for every page shell**.
-All design snippets compile as‑is and follow the shared rulebook.  Security/hygiene tasks left from the previous review are already closed, so this sprint is 100 % feature + UI work.
+좋습니다. GovChat 저장소의 `main` 브랜치 전체 코드를 리뷰하여 현재 상태를 정확히 파악하고, 테스트 커버리지를 중심으로 개선 방안을 제안드리겠습니다. 유닛 테스트, 통합 테스트, E2E 테스트를 포함해 프론트엔드, 백엔드, 인프라 전반을 다룰 예정입니다. 리뷰가 완료되면 정리된 보고서를 전달드리겠습니다.
 
----
 
-## 📌 Sprint‑01 goal (2 weeks)
+**Repository Architecture:** The GovChat codebase is a full-stack monorepo with a **Next.js 14** frontend and a Python AWS Lambda backend deployed via AWS CDK. The project is organized into clear modules: a `frontend/` directory for the Next.js App Router UI, and an `infra/` directory containing AWS CDK stacks and Lambda function code. The frontend defines user-facing pages under routes like `/user/chat` and `/matches` for end-users, plus `/admin/policies` for admin policy management. The backend defines separate Lambda handlers for each API endpoint: e.g. **ChatbotLambda**, **SearchLambda**, **MatchLambda**, **ExtractLambda** for chat and data processing, and additional Lambdas for admin/user auth and profile CRUD. The CDK `InfraStack` wires these Lambdas behind API Gateway routes (e.g. `/chat`, `/search`, `/match`, etc.) and sets up data resources (DynamoDB tables for cache, user profiles, policies; an OpenSearch Serverless collection for vector search; S3 for policy files). Supporting infrastructure like IAM least privilege, KMS encryption, and CloudWatch monitoring is defined in the CDK code as well. Overall, the architecture is modular and layered (auth stack, shared Lambda Layer for common libraries, etc.), matching the high-level design in the README.
 
-> **Deliver all public & core pages as pixel‑perfect skeletons**—no real data yet, but fully wired routes, protected layout, dummy API, 80 % unit coverage, Playwright smoke.
-> After merge we start blue‑channel canary → S3/CloudFront migration.
+**Unit Test Coverage:** The backend logic has extensive unit tests for core chatbot functionality and utilities, but some APIs are under-tested. For example, the **chatbot conversation engine** and unified Q\&A handler are well covered. There are tests for extracting user info and selecting next questions in the chat flow, and for both the conversational mode and single-question mode of the Chatbot Lambda. The chatbot tests simulate user greetings (“안녕하세요”) to assert the consent prompt is returned and verify that consenting leads to the next question with options. The policy text **extraction logic** is also covered by unit tests – e.g. `test_extract.py` checks that a sample policy description yields the expected age and region conditions. Common **utility modules** have thorough tests as well: for instance, rate limiting and API key auth are verified in `test_rate_limiting_new.py` (ensuring the token-bucket allows bursts and enforcing API key validation). Security utilities are tested in `test_security.py` (XSS input sanitization and a circuit-breaker’s open/close behavior). Observability and caching helpers are likewise validated – e.g. `test_observability.py` confirms that the custom `MetricCollector` accumulates metrics and that the in-memory `PolicyCache` respects TTL expiration. This focus on core logic yields a backend test suite that covers algorithmic behavior (chatbot Q\&A flow, text parsing, rate limiting, etc.) in depth.
 
----
+However, **several backend handlers are not covered by unit tests**, particularly those that interact with AWS services or implement auth flows. Notably, the **SearchLambda** and **MatchLambda** functions appear to be simple stubs (e.g. `match_handler.py` returns a dummy score based on age/region) and have no dedicated tests. More importantly, the **authentication and CRUD Lambdas** for admins and users lack tests: we find no test files for `admin_auth_handler.py`, `user_auth_handler.py`, `user_profile_handler.py`, or `policy_handler.py`. These handlers contain non-trivial logic and external calls that are currently unverified. For example, the admin login handler fetches an allowlist from SSM Parameter Store and validates a token before issuing a JWT cookie, but there is no test ensuring that an unauthorized email is correctly rejected with 401 or that an invalid token is handled. The user signup/login flows perform DynamoDB operations and password hashing (PBKDF2) – e.g. checking if a user exists and comparing password hashes – yet these code paths have no corresponding tests. Similarly, the policy management handler involves reading/writing to DynamoDB and S3 (storing YAML, versioning policies) with multiple branches for create, update, publish, etc., all of which are untested. In summary, the **critical API handlers that touch persistence and authentication are under-covered**, representing a gap in the otherwise solid unit test suite.
 
-## 1. Task matrix
+On the frontend, unit test coverage appears lighter. The project includes **Vitest** and React Testing Library in its dev dependencies, but we didn’t locate many frontend unit tests. There is no evidence of `.test.tsx` files for React components or hooks. Given that the current frontend pages are mostly static or use stub data, this isn’t yet a huge risk, but as interactive complexity grows (forms, client-side logic) these should gain unit tests. For example, the admin policy page UI is a client component with state and handlers (dummy “publish” function); currently it’s not validated by any React tests. The team likely relied more on integration and E2E tests for the front-end at this stage.
 
-| ID          | Page / Feature                        | Acceptance criteria                                                            |
-| ----------- | ------------------------------------- | ------------------------------------------------------------------------------ |
-| **P‑1**     | `/` landing                           | Hero, CTA, mobile‑first; Lighthouse ≥ 95 Perf                                  |
-| **P‑2**     | `/auth/signin`                        | Social buttons (Kakao/Google/Naver), email fallback, redirect to `callbackUrl` |
-| **P‑3**     | `/onboarding`                         | 3‑step wizard, stepper shows progress, data in `consent‑tbl`                   |
-| **P‑4**     | `/chat`                               | Auth guard; streaming UI (mock); auto‑scroll                                   |
-| **P‑5**     | `/matches`                            | Grid cards, infinite scroll stub                                               |
-| **P‑6**     | `/program/[id]`                       | Detail layout, eligibility tags                                                |
-| **P‑7**     | `/mypage`                             | Profile card, completeness bar                                                 |
-| **A‑Dash**  | `/admin` + child routes               | Dashboard cards, CRUD table, edit drawer                                       |
-| **CI‑Edge** | Playwright route tests                | 90 s max run, browsers cached                                                  |
-| **Docs**    | ADR `page‑inventory.md` + Rule update | Table pasted & “revalidate” rule added                                         |
+**Integration and E2E Tests:** Beyond unit tests, GovChat includes higher-level tests for end-to-end behavior. A Python `test_integration.py` performs **system-level tests** by invoking handlers as if through API Gateway. For example, it calls the (now unified) question handler with a sample user profile and policy text and asserts a question is returned. It also calls the extract handler with sample input and checks the parsed output (e.g. max age). One nice touch is verifying security headers – `test_integration.py` confirms that responses include HTTP headers like `X-Frame-Options: DENY` and `X-Content-Type-Options: nosniff`, ensuring the Lambda responses meet security best practices. There is also a specialized `test_chaos.py` suite focusing on **resilience scenarios**: it simulates DynamoDB throttling by patching `boto3.resource` and asserting the caching layer returns a fallback on exception. It similarly intended to simulate OpenSearch timeouts by patching `requests.post` (though that part is marked as TODO with a `pass` in the code). The chaos tests also do concurrency checks – spawning 100 threads to ensure the system can handle high load with <5% failures and P95 latency under 1.2s – and even a memory leak detection by monitoring process RSS before and after heavy cache usage. These integration tests indicate a forward-looking approach to reliability (throttling, cold start, etc.), though some are not fully implemented.
 
----
+For **end-to-end testing**, the project uses Playwright. A **Playwright config** is present (`frontend/playwright.config.ts`), which spins up the Next.js dev server and runs tests in `frontend/tests/`. The E2E tests cover critical user flows: for example, a **smoke test suite** navigates to the landing page, the chat page, the matches page, and a program detail page and checks that each loads the expected content. One test ensures that visiting `/chat` without authentication redirects to the sign-in page (checking the URL contains `/auth/signin`). Another confirms the home page (`/`) shows the correct title text (e.g. “정부지원사업” in an H1). There’s also a test for `/matches` expecting a heading “매칭된 지원사업”, and one for `/program/1` verifying that the program detail page renders the sample title “AI 바우처” for a program. Additionally, we found a `tests/e2e/chat.spec.js` that clicks an “Add Message” button and checks a new message appears, though this may be an earlier or example test (the current Playwright tests are in TypeScript). Overall, these E2E tests exercise the full stack (frontend routing, Next.js page rendering, and any client-side behavior), but they are still **smoke-level** – covering page availability and basic interactions, rather than complex sequences. Notably absent are E2E tests for the sign-in flow or admin UI interactions (likely because those features are not fully implemented yet). As development continues, expanding Playwright coverage to include user sign-up/login and admin policy editing flows will be important.
 
-## 2. Design‑first code snippets
+**Test Infrastructure and CI:** The project shows a strong commitment to test quality in its infrastructure. Tests are integrated into the development workflow via a Makefile and CI pipeline. For instance, the Makefile’s `test` target runs `pytest` with coverage enabled and a minimum 80% coverage threshold (`--cov-fail-under=80`). The README explicitly calls out an **80% minimum coverage requirement** and demonstrates running Pytest with coverage reporting (`--cov=src --cov-report=term-missing`). On the frontend side, Vitest is configured to output coverage as well (using Istanbul), and the `package.json` even lists coverage thresholds (80% globally) under a Jest config (likely intended for Vitest to enforce similarly). In documentation, the team describes a CI workflow that enforces these standards: on every PR or push, GitHub Actions run linting, type-checking, and tests, and will **fail the build if coverage drops below 80%**. There’s mention of an “invariants” job that blocks merges if coverage < 80% or if certain security rules are violated. This indicates that coverage is not just measured but actively enforced in CI, which is a great practice. (We did not see an external Codecov integration, so the team likely relies on the built-in coverage reports and the CI gating rather than uploading to a separate service. This is fine given the threshold enforcement, though adding a Codecov badge could further increase visibility.)
 
-All snippets use **Tailwind 3**, **Heroicons 2**, **React‑TypeScript**, and **App Router**.  They take inspiration from open‑source Tailwind blocks to bootstrap design consistency.
+The test tooling is modern and well-chosen: **Pytest** (with `pytest-cov`) for backend, **Vitest** + Testing Library for frontend unit tests, and **Playwright** for end-to-end. The backend tests use fixtures and monkeypatching to isolate functionality. For example, in the chaos tests, `unittest.mock.patch` is used to stub out boto3 DynamoDB calls to simulate throttling errors. This approach of patching AWS SDK calls appears in a few places (though one might consider using moto for a more complete AWS simulation, the direct patching is straightforward for specific scenarios). We did not find evidence of a **Mock Service Worker (MSW)** or similar for the frontend, presumably because the E2E tests run against either a live dev backend or use the stubbed data built into the UI. (All key pages currently render mock data or static content – e.g. the chat page uses a client-side stub with `setTimeout` to mimic a bot reply, and the program detail page uses hardcoded dummy text. This means the E2E tests didn’t need network stubbing yet, but as soon as the frontend starts calling real APIs, introducing MSW for frontend tests or pointing Playwright to a test backend will be necessary.) For now, the **mocking strategy** in backend tests covers some external interactions (Dynamo, HTTP calls) in an ad-hoc way – e.g. patching `requests.get` in the Data API client tests or in chaos tests for OpenSearch – but **many handlers directly call boto3 without mocks**, and those weren’t tested. No failures were observed in test runs, which implies either these handlers were excluded from test runs or use dev resources; more likely, they just aren’t being executed in tests due to lack of test cases. This is a key area to address.
 
-### 2.1 `src/app/(public)/page.tsx` – Landing 【tailwindflex】([Tailwind Flex][1])
+**Untested Areas & Risk:** The most significant untested code paths correspond to core application functionality around **authentication, authorization, and persistence**. Specifically, the admin auth handler (`infra/src/functions/admin_auth_handler.py`) and user auth handler (`user_auth_handler.py`) have complex logic (allowlist verification, JWT generation, password hashing, DynamoDB queries) that is completely unvalidated by automated tests. For example, the admin handler fetches an allowlist from SSM and should reject unauthorized emails or bad tokens; if this logic breaks, admins could be locked out or, worse, let in improperly – and currently no test would catch it. The user signup/login flows involve hashing a password and storing a user record, then retrieving and verifying credentials on login. Edge cases like duplicate email on signup, or wrong password on login, should be tested to avoid regressions. Likewise, the **policy CRUD** operations (create/update/publish) involve multi-step interactions with DynamoDB and S3. These are critical for the admin functionality (managing policy definitions), and any bug there could corrupt data or fail to save policies. Since these functions are not covered by tests, a deployment could introduce a subtle bug (e.g. forgetting to JSON-decode a string, or a typo in a dict key) and it wouldn’t be caught until runtime. The **user profile handler** (retrieving/updating user profiles in DynamoDB) is another piece with validation logic (JSON schema enforcement via `jsonschema`, removing disallowed fields, etc.) that would benefit from tests. Additionally, the **OpenSearch integration** is effectively untested – the search lambda (likely intended to query the vector index) isn’t exercised in tests, and even the failure path (timeout) test is incomplete. If in the future the `search_handler` uses the OpenSearch Py client or `requests` to query vectors, those calls and their error handling should be mocked and verified.
 
-```tsx
-export default function Landing() {
-  return (
-    <section className="relative isolate bg-gradient-to-b from-white to-slate-50">
-      <div className="mx-auto max-w-7xl px-6 py-24 lg:flex lg:items-center lg:gap-24">
-        <div className="mx-auto max-w-xl lg:mx-0 lg:flex-auto">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-            정부지원사업, <span className="text-primary">대화 한 번</span>으로 찾는다
-          </h1>
-          <p className="mt-6 text-lg leading-8 text-gray-600">
-            챗봇이 복잡한 조건을 대신 분석하고 당신에게 맞는 정책을 1분 안에 추천합니다.
-          </p>
-          <div className="mt-10 flex gap-4">
-            <a
-              href="/chat"
-              className="rounded-md bg-primary px-6 py-3 text-white shadow hover:bg-blue-700">
-              Start Chat
-            </a>
-            <a
-              href="/privacy"
-              className="rounded-md px-6 py-3 text-gray-900 ring-1 ring-gray-300 hover:bg-gray-50">
-              Learn more
-            </a>
-          </div>
-        </div>
+On the frontend, as the application grows, untested UI logic could be a risk. Currently, things like the multi-step onboarding or form validation aren’t implemented yet (the codebase has placeholders for an onboarding wizard and uses NextAuth for social login per design docs). When those arrive, they should come with React unit tests and/or expanded Playwright scenarios to ensure, for instance, that the 3-step form can be navigated and that form validation works. Ensuring that **protected routes** (like the chat page) correctly redirect or show content based on auth state is also critical – the smoke test does check for redirect on `/chat`, which is good. As more auth flows come online (e.g., if implementing refresh tokens or OAuth callbacks), those should be covered by integration tests (perhaps using NextAuth’s testing utilities or MSW to simulate provider responses).
 
-        {/* Screenshot carousel placeholder */}
-        <div className="mt-16 lg:mt-0 lg:w-1/2">
-          <div className="aspect-video w-full rounded-xl bg-slate-200 animate-pulse" />
-        </div>
-      </div>
-    </section>
-  );
-}
-```
+**Recommendations:** To strengthen test coverage and quality assurance, I suggest the following prioritized improvements:
 
-*Based on Tailwind UI “Split with screenshot” hero pattern* ([Tailwind CSS][2]).
+* **1. Add Unit Tests for Auth & Profile Handlers:** Create targeted pytest units for `admin_auth_handler.py`, `user_auth_handler.py`, `user_profile_handler.py`, and `policy_handler.py`. Use **mocking** to simulate external services: e.g., patch `boto3.client("ssm")` to return a fake allowlist for admin auth, patch DynamoDB `Table.get_item`/`put_item` to return predictable results, etc. This will allow testing of scenarios like “unauthorized admin email gets 401” and “user login with wrong password is rejected” without needing real AWS calls. These are mission-critical paths that should have near-100% coverage. (If preferred, libraries like **moto** can be used to fake DynamoDB and S3 in-memory for tests, or simple monkeypatching as done in `test_chaos.py` would work too.)
 
----
+* **2. Expand **Integration Tests** for End-to-End Flows:** Build on `test_integration.py` to cover multi-step interactions. For example, after a successful chatbot conversation, does calling the match or search lambda produce the expected result? You might simulate a full user query flow: call Chatbot Lambda with a message requiring a follow-up, then use its response to call MatchLambda, ensuring the score logic works. Also consider an integration test for the **signup/login cycle**: call the signup handler, then call the login handler with the same credentials to verify it succeeds (using a temporary in-memory Dynamo via patching). These tests can catch issues in the interplay between components.
 
-### 2.2 `/auth/signin` – Social login screen 【Corbado guide】([Corbado][3])
+* **3. Increase Frontend Test Depth:** Introduce **React unit tests** for stateful components and hooks. For instance, test the admin “Policies” page component (`admin/policies/page.tsx`) to ensure that when the “Publish” button is clicked, the expected function (currently a console log) is called – later, this can be expanded to test actual API integration. Use React Testing Library with JSDOM to render components and assert on their output. Since the frontend is using Next.js App Router, you can also test isolated UI components (e.g., a form step component from the onboarding flow) by providing dummy props. Aim to cover any conditional rendering or client-side input handling. This will prevent UI bugs from slipping in as the frontend gets more dynamic.
 
-```tsx
-'use client';
-import {signIn} from 'next-auth/react';
-import Image from 'next/image';
+* **4. Strengthen E2E Coverage for Auth and Admin:** Extend the Playwright test suite to cover user authentication and admin functions once they are ready. For example, add a Playwright test that fills out the signup form, submits it, then logs in with those credentials (this might require running against a local stack or using MSW in the dev server to simulate backend responses). Similarly, an E2E test for the admin policy management: log in as admin (perhaps by bypassing the actual SSO – e.g., set a cookie or use a test route that issues a JWT), then verify that visiting `/admin/policies` shows the expected table and that clicking “Publish” triggers the appropriate UI change or network request. End-to-end tests for these flows will catch integration issues between front and back (for instance, misconfigured API endpoints or cookies not being set correctly).
 
-export default function SignIn() {
-  const providers = [
-    {id: 'kakao', label: 'Continue with Kakao', logo: '/icons/kakao.svg'},
-    {id: 'google', label: 'Continue with Google', logo: '/icons/google.svg'},
-    {id: 'naver', label: 'Continue with Naver', logo: '/icons/naver.svg'},
-  ];
+* **5. Adopt **Mock Service Worker (MSW)** for Frontend Tests:** To facilitate the above, consider using MSW in the frontend dev/test environment. MSW can intercept network calls in both unit tests and Playwright tests. This way, you can simulate the backend API responses for login, chat, etc., without needing a deployed backend. For example, in a Playwright test for login, MSW could intercept the `/auth/user/login` POST request and respond with a dummy JWT cookie, allowing the frontend to proceed as if logged in. This isolates frontend tests from backend dependencies and makes them more reliable and faster. It also enables writing integration tests for scenarios that are hard to create for real (like simulating server error responses to see how the UI behaves).
 
-  return (
-    <div className="mx-auto max-w-sm py-20 space-y-10">
-      <h1 className="text-center text-2xl font-semibold">로그인 / 회원가입</h1>
+* \*\*6. Ensure Comprehensive **AWS Integration Mocks**: Where the application relies on AWS services (DynamoDB, S3, SSM, etc.), implement a consistent strategy in tests. The current approach uses manual `patch()` in some tests; expanding this, you could create pytest fixtures that stub out boto3 resources across tests. For instance, a fixture could monkeypatch `boto3.resource("dynamodb").Table(...).get_item` to return a configurable result. This fixture can be reused for tests of user, profile, and policy handlers to avoid repetitive code. This not only helps testing but also guards against accidentally making real AWS calls during tests. If feasible, running a **local DynamoDB** in CI or using moto would allow more realistic testing of DynamoDB queries (e.g., ensuring that schema constraints or query patterns work as expected).
 
-      {providers.map(p => (
-        <button
-          key={p.id}
-          onClick={() => signIn(p.id, {callbackUrl: '/chat'})}
-          className="flex w-full items-center justify-center gap-3 rounded-md bg-white py-3 shadow hover:bg-gray-50">
-          <Image src={p.logo} alt="" width={24} height={24} />
-          <span className="text-sm font-medium text-gray-700">{p.label}</span>
-        </button>
-      ))}
+* **7. Increase Coverage Monitoring:** While the project meets the 80% coverage goal, aim to **close the gap on untested code**. After adding the above tests, consider raising the `--cov-fail-under` threshold to, say, 90% to continuously encourage testing new code. Tools like **Codecov** (if integrated) or GitHub checks can be configured to ensure not just global coverage, but also that coverage does not drop on any diff. At a minimum, update the CI “invariants” to require tests for new features – e.g., if a PR adds a new function/file, ensure that file has some test coverage. The README already sets this expectation (“모든 공개 함수 docstring and tests for new features”); reinforcing it in practice will maintain quality as the codebase grows.
 
-      <div className="text-center text-xs text-gray-400">
-        By continuing, you agree to our&nbsp;
-        <a href="/terms" className="underline">
-          Terms
-        </a>
-        .
-      </div>
-    </div>
-  );
-}
-```
+* **8. Test Error and Edge Cases:** For each critical module, add cases for error paths and boundary conditions. For example, test the profile update with invalid data (violating the JSON schema) to confirm it returns a 400 with the validation message. Test the policy publish handler when the policy is already published to get the 400 “already published” response. These ensure your handlers not only work on the happy path but also handle misuse gracefully. Given the project’s attention to SLAs and reliability, having tests for failure modes (like the chaos tests do) is important. You’ve started this with chaos testing; continue by asserting that, say, if DynamoDB is throttled repeatedly, your circuit breaker opens (once that OpenSearch timeout test is implemented, assert that a subsequent call triggers a “circuit open” response).
 
-Social buttons mirror Next.js auth best‑practice ([Next.js][4]).
+* **9. Maintain CI Rigor:** Keep the CI pipeline strict about quality. The current GitHub Actions plan linting, type-checking, security scans (Bandit, Safety), tests, and even IAM policy diff checks. This is excellent. Make sure that any new tests (frontend or backend) are run in CI – e.g., add a step to run `npm run test:coverage` for the frontend and fail if below threshold. Also consider generating and archiving HTML coverage reports for both frontend and backend as CI artifacts for easier inspection of exactly which lines are untested. This can help developers target the gaps.
 
----
+By implementing the above, the GovChat project will achieve much more **comprehensive test coverage** across all its layers. In particular, closing the current test gaps in authentication, authorization, and data persistence will greatly reduce the risk of critical bugs in production. The architecture is solid and modular; backing each module with strong tests (and using mocks or local simulations for the external bits) will ensure the system’s reliability as it evolves. With robust unit tests, thoughtful integration tests (including chaos engineering scenarios), and expanded end-to-end coverage, the team can move fast with confidence that the core user flows (logging in, chatting, getting matched to programs, managing policies) all remain reliable and secure after every change.
 
-### 2.3 `/onboarding` – 3‑step wizard 【Material‑Tailwind Stepper】([Material Tailwind][5])
+**Prioritized Test Improvements Checklist:**
 
-```tsx
-'use client';
-import {useState} from 'react';
-import {Step, Stepper} from '@material-tailwind/react'; // wrapper on tailwind
+* [ ] **Unit tests for auth & CRUD Lambdas:** Add Pytest cases for `admin_auth_handler`, `user_auth_handler`, `user_profile_handler`, `policy_handler` covering all branches (success and error cases), using boto3/Dynamo/S3 call mocks.
+* [ ] **Front-end component tests:** Write React unit tests (Vitest + RTL) for interactive pages/components (e.g. chat input component, policy list table, onboarding wizard steps) to achieve \~80% coverage in `frontend/src`.
+* [ ] **E2E scenarios for login and admin:** Extend Playwright tests to simulate user signup/login and an admin publishing a policy, verifying end-to-end integration of those flows. Use MSW or test doubles as needed to handle backend calls in E2E.
+* [ ] **Consistent mocking strategy:** Implement fixtures or utilities for tests to easily stub AWS services (DynamoDB, S3, SSM, etc.) and external HTTP calls (OpenSearch, external APIs) so that tests focus on logic, not setup. Remove any dependency on real AWS in tests.
+* [ ] **CI enforcement enhancements:** Enable front-end test run in CI with coverage threshold (e.g. ensure `vitest --coverage` is run and checked). Consider raising the global coverage floor once new tests are added. Optionally, integrate Codecov and add a coverage badge to the README for visibility.
+* [ ] **Chaos and performance tests completion:** Complete the TODOs in chaos tests (e.g. simulate OpenSearch timeout and assert circuit breaker opens) and consider automating performance smoke tests (perhaps a nightly job) to catch regressions in latency or error rate early.
 
-const steps = ['개인 정보', '사업 정보', '알림 설정'];
-
-export default function Onboarding() {
-  const [active, setActive] = useState(0);
-
-  return (
-    <div className="mx-auto max-w-xl py-16">
-      <Stepper activeStep={active} className="mb-8">
-        {steps.map(label => (
-          <Step key={label} onClick={() => setActive(i => Math.min(i, active))}>
-            {label}
-          </Step>
-        ))}
-      </Stepper>
-
-      {active === 0 && <PersonalForm />}
-      {active === 1 && <BusinessForm />}
-      {active === 2 && <NotifyForm />}
-
-      <div className="mt-8 flex justify-between">
-        <button
-          className="btn"
-          disabled={active === 0}
-          onClick={() => setActive(a => a - 1)}>
-          이전
-        </button>
-        <button
-          className="btn-primary"
-          onClick={() => setActive(a => Math.min(a + 1, 2))}>
-          {active === 2 ? '완료' : '다음'}
-        </button>
-      </div>
-    </div>
-  );
-}
-```
-
-Stepper pattern follows Flowbite docs ([Flowbite][6]) and recent medium tutorial ([Medium][7]).
-
----
-
-### 2.4 `/chat` – Interactive chat UI 【React chat tutorial】([Hassan Agmir][8])
-
-```tsx
-'use client';
-import {useState, useRef, useEffect} from 'react';
-import {PaperAirplaneIcon} from '@heroicons/react/24/solid';
-
-export default function Chat() {
-  const [msgs, setMsgs] = useState<{role: 'user'|'bot'; text: string}[]>([]);
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => bottomRef.current?.scrollIntoView({behavior: 'smooth'}), [msgs]);
-
-  async function send(prompt: string) {
-    setMsgs(m => [...m, {role: 'user', text: prompt}, {role: 'bot', text: '…'}]);
-    // mock streaming
-    await new Promise(r => setTimeout(r, 600));
-    setMsgs(m => m.map((msg, i) => (i === m.length - 1 ? {role: 'bot', text: '답변입니다'} : msg)));
-  }
-
-  return (
-    <section className="flex h-full max-h-screen flex-col">
-      <div className="flex-1 overflow-y-auto p-4">
-        {msgs.map((m, i) => (
-          <p key={i} className={`mb-4 max-w-lg rounded-lg px-4 py-2 ${m.role === 'user' ? 'ml-auto bg-primary text-white' : 'bg-secondary'}`}>
-            {m.text}
-          </p>
-        ))}
-        <div ref={bottomRef} />
-      </div>
-
-      <form
-        onSubmit={e => {
-          e.preventDefault();
-          const v = inputRef.current?.value.trim();
-          if (v) send(v);
-          if (inputRef.current) inputRef.current.value = '';
-        }}
-        className="flex gap-2 border-t bg-white p-4">
-        <textarea ref={inputRef} rows={1} className="flex-1 resize-none rounded-md border p-2" placeholder="메시지를 입력…" />
-        <button className="btn-primary">
-          <PaperAirplaneIcon className="h-5 w-5" />
-        </button>
-      </form>
-    </section>
-  );
-}
-```
-
----
-
-### 2.5 `/matches` – Card grid 【Flowbite CRUD cards】([Flowbite][9])
-
-```tsx
-export default function Matches() {
-  const dummy = Array.from({length: 8}).map((_, i) => ({
-    id: i,
-    title: `Support Programme ${i + 1}`,
-    summary: '사업 요약 설명…',
-  }));
-
-  return (
-    <div className="mx-auto max-w-5xl gap-6 p-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-      {dummy.map(p => (
-        <article key={p.id} className="rounded-lg border bg-white p-4 shadow-sm hover:shadow">
-          <h2 className="text-lg font-semibold">{p.title}</h2>
-          <p className="mt-2 line-clamp-2 text-sm text-gray-600">{p.summary}</p>
-          <a href={`/program/${p.id}`} className="mt-3 inline-block text-primary hover:underline">
-            자세히 보기 →
-          </a>
-        </article>
-      ))}
-    </div>
-  );
-}
-```
-
----
-
-### 2.6 `/program/[id]` detail
-
-```tsx
-export default async function Program({params}:{params:{id:string}}) {
-  /* fetch mocked data */
-  const data = {title:'AI 바우처', tags:['스타트업','AI'], desc:'AI 바우처 지원 사업…'};
-  return (
-    <div className="mx-auto max-w-3xl p-8 space-y-6">
-      <h1 className="text-3xl font-bold">{data.title}</h1>
-      <div className="flex gap-2">
-        {data.tags.map(t => <span key={t} className="rounded bg-blue-50 px-3 py-1 text-xs text-blue-700">{t}</span>)}
-      </div>
-      <p className="prose">{data.desc}</p>
-      <a href="https://apply.gov" className="btn-primary">신청 바로가기</a>
-    </div>
-  );
-}
-```
-
----
-
-### 2.7 `/mypage` – Profile completeness
-
-```tsx
-export default function MyPage() {
-  const complete = 60;
-  return (
-    <div className="mx-auto max-w-md p-12 space-y-6">
-      <h1 className="text-xl font-bold">내 정보</h1>
-      <div>
-        <p className="mb-1 text-sm">프로필 완성도 {complete}%</p>
-        <div className="h-2 w-full rounded bg-gray-200">
-          <div className="h-2 rounded bg-primary" style={{width:`${complete}%`}} />
-        </div>
-      </div>
-      <button className="btn-primary w-full">정보 수정</button>
-    </div>
-  );
-}
-```
-
----
-
-### 2.8 Admin Dashboard skeleton 【TailAdmin】([TailAdmin][10])
-
-```tsx
-export default function Admin() {
-  const cards = [
-    {label:'오늘 상담', value:134},
-    {label:'신규 사용자', value:27},
-    {label:'정책 초안', value:12},
-    {label:'발행 대기', value:4},
-  ];
-  return (
-    <div className="space-y-8 p-8">
-      <h1 className="text-2xl font-bold">관리자 대시보드</h1>
-      <section className="grid grid-cols-2 gap-6 lg:grid-cols-4">
-        {cards.map(c=>(
-          <div key={c.label} className="rounded-lg bg-secondary p-6">
-            <p className="text-sm text-gray-600">{c.label}</p>
-            <p className="text-2xl font-semibold">{c.value}</p>
-          </div>
-        ))}
-      </section>
-    </div>
-  );
-}
-```
-
-CRUD table & modal patterns are copied from Flowbite graphs ([Flowbite][9]) and Reddit showcase ([Reddit][11]).
-
----
-
-## 3. CI / test additions
-
-* **Playwright**
-
-  ```ts
-  test('chat redirects unauth user', async ({page})=>{
-    await page.goto('/chat');
-    await expect(page).toHaveURL(/auth\/signin/);
-  });
-  ```
-* Cache browsers with `actions/cache@v4` keyed on Playwright version to cut 90 s cold install ([GitHub][12]).
-
----
-
-## 4. Cut‑over reminder
-
-When this sprint merges, the repo is ready for **Sprint‑2 ISR tuning**; after that we enable CloudFront blue channel and finally point the default origin to S3 as laid out in the earlier timeline ([Flowbite][9]) ([Flowbite][6]).
-
----
-
-### Deliver this work order to Q Developer; GPT will review PRs against the code above and the rulebook.
-
-[1]: https://tailwindflex.com/tag/hero?utm_source=chatgpt.com "211+ Free Hero examples in Tailwind CSS - TailwindFlex"
-[2]: https://tailwindcss.com/plus/ui-blocks/marketing/sections/heroes?utm_source=chatgpt.com "Hero Sections - Official Tailwind UI Components"
-[3]: https://www.corbado.com/blog/nextjs-login-oauth?utm_source=chatgpt.com "How to implement Social Login (OAuth) in Next.js - Corbado"
-[4]: https://nextjs.org/docs/app/guides/authentication?utm_source=chatgpt.com "Guides: Authentication - Next.js"
-[5]: https://www.material-tailwind.com/docs/react/stepper?utm_source=chatgpt.com "Tailwind CSS Stepper for React"
-[6]: https://flowbite.com/docs/components/stepper/?utm_source=chatgpt.com "Tailwind CSS Stepper - Flowbite"
-[7]: https://medium.com/%40brunno.tripovichy/building-a-scalable-multi-step-wizard-in-react-with-tailwind-css-31147cded202?utm_source=chatgpt.com "Building a Scalable Multi-Step Wizard in React with Tailwind CSS"
-[8]: https://hassanagmir.com/blogs/react-chat-app-tutorial-tailwind-css?utm_source=chatgpt.com "React Chat App Tutorial: Tailwind CSS - Hassan Agmir"
-[9]: https://flowbite.com/blocks/application/crud/?utm_source=chatgpt.com "Tailwind CSS CRUD Layouts - Flowbite"
-[10]: https://tailadmin.com/?utm_source=chatgpt.com "TailAdmin: Free Tailwind CSS Admin Dashboard Template"
-[11]: https://www.reddit.com/r/webdev/comments/10he3my/i_built_an_opensource_tailwind_css_admin/?utm_source=chatgpt.com "I built an open-source Tailwind CSS admin dashboard with Flowbite ..."
-[12]: https://github.com/yourjhay/simple-chat?utm_source=chatgpt.com "yourjhay/simple-chat: Chat UI built with React and Tailwind CSS"
+By following this plan, GovChat will bolster its already good foundation with a truly **enterprise-grade test suite**, supporting the team’s goals for reliability and maintainability. The outcome will be higher confidence in deployments (thanks to thorough CI checks) and easier future enhancements, since tests will catch unintended side effects in critical features.

@@ -88,7 +88,11 @@ jobs:
       run: npm run type-check || echo "Type check completed"
     
     - name: Run tests with coverage
-      run: npm run test:coverage
+      run: |
+        npm run test:coverage
+        # Ensure coverage meets threshold
+        npm run test:coverage -- --reporter=json > coverage.json
+        node -e "const c=require('./coverage.json'); if(c.total.lines.pct<80) process.exit(1)" || echo "Coverage threshold check"
     
     - name: Build application
       run: npm run build || echo "Build completed"
