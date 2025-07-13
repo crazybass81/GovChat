@@ -6,7 +6,7 @@ import time
 import pytest
 import requests
 
-API_BASE = "https://mda1qa36df.execute-api.us-east-1.amazonaws.com/prod"
+API_BASE = "https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod"
 
 
 def test_health_check():
