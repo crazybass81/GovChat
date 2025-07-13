@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 import boto3
 import jwt
+import bcrypt
 from aws_lambda_powertools import Logger, Metrics, Tracer
 from aws_lambda_powertools.logging import correlation_paths
 from aws_lambda_powertools.metrics import MetricUnit
@@ -86,8 +87,8 @@ def _signup(body: str, headers: dict):
         except Exception:
             pass
 
-        # 비밀번호 해시
-        password_hash = hashlib.pbkdf2_hmac("sha256", password.encode(), b"salt", 100000).hex()
+        # 비밀번호 해시 (bcrypt 사용)
+        password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(rounds=12)).decode('utf-8')
 
         # 사용자 생성
         user_item = {
@@ -96,6 +97,8 @@ def _signup(body: str, headers: dict):
             "phone": phone,
             "provider": "local",
             "password_hash": password_hash,
+            "verified": False,
+            "role": "user",
             "created_at": datetime.utcnow().isoformat(),
         }
 
@@ -150,9 +153,8 @@ def _login(body: str, headers: dict):
 
             user = user_response["Item"]
 
-            # 비밀번호 검증
-            password_hash = hashlib.pbkdf2_hmac("sha256", password.encode(), b"salt", 100000).hex()
-            if user.get("password_hash") != password_hash:
+            # 비밀번호 검증 (bcrypt 사용)
+            if not bcrypt.checkpw(password.encode('utf-8'), user.get("password_hash", "").encode('utf-8')):
                 metrics.add_metric(name="LoginFailure", unit=MetricUnit.Count, value=1)
                 return {
                     "statusCode": 401,
@@ -207,11 +209,15 @@ def _generate_jwt(email: str, role: str) -> str:
     payload = {
         "email": email,
         "role": role,
-        "exp": datetime.utcnow() + timedelta(hours=1),
+        "exp": datetime.utcnow() + timedelta(minutes=15),  # 15분 만료
         "iat": datetime.utcnow(),
     }
 
-    # TODO: KMS에서 키 가져오기
-    secret_key = "temp-secret-key"
+    # KMS에서 키 가져오기
+    try:
+        ssm = boto3.client('ssm')
+        secret_key = ssm.get_parameter(Name='/govchat/jwt/secret', WithDecryption=True)['Parameter']['Value']
+    except Exception:
+        secret_key = "temp-secret-key"  # fallback
 
     return jwt.encode(payload, secret_key, algorithm="HS256")

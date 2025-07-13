@@ -43,5 +43,14 @@ clean:
 	find . -type f -name "*.pyc" -delete
 	cd infra && rm -rf cdk.out
 
+# 커버리지 테스트
+test-coverage:
+	cd infra && python -m pytest ../tests/ -v --cov=src --cov-report=html --cov-report=term
+
+# 보안 스캔
+security-scan:
+	bandit -r infra/src/ -f json -o security-report.json
+	safety check --json --output safety-report.json
+
 # 전체 파이프라인
-pipeline: clean test deploy health-check review
+pipeline: clean quality test-coverage security-scan test deploy health-check review

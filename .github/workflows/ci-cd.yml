@@ -1,34 +1,57 @@
 name: CI/CD Pipeline
 
-# rebuild/v3-clean 브랜치로의 풀 리퀘스트 시 파이프라인을 트리거
 on:
+  push:
+    branches: [main, develop]
   pull_request:
-    branches:
-      - rebuild/v3-clean
+    branches: [main]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: 코드 체크아웃
-        uses: actions/checkout@v3
-        # 리포지토리에서 최신 코드를 가져옵니다
-
-      - name: Node.js 설정
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          node-version: '18' # 호환성을 위해 Node.js 버전 18 사용
+          python-version: '3.9'
+      
+      - name: Install dependencies
+        run: |
+          pip install -r infra/requirements.txt
+          pip install pytest pytest-cov bandit safety
+      
+      - name: Code quality checks
+        run: make quality
+      
+      - name: Run tests with coverage
+        run: make test-coverage
+      
+      - name: Security scan
+        run: make security-scan
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./htmlcov/coverage.xml
 
-      - name: 의존성 설치
-        run: npm install # 프로젝트 의존성 설치
-
-      - name: 린트 실행
-        run: npm run lint # 코드 린트 오류 확인
-
-      - name: 테스트 실행
-        run: npm test # 유닛 및 통합 테스트 실행
-
-      - name: 배포
-        if: github.event_name == 'push'
-        run: npm run deploy # 푸시 이벤트 시 애플리케이션 배포
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+      
+      - name: Deploy to AWS
+        run: make deploy
+      
+      - name: Health check
+        run: make health-check
