@@ -39,7 +39,7 @@
     "@testing-library/jest-dom": "^6.1.0",
     "@testing-library/user-event": "14.6.1",
     "jsdom": "23.2.0",
-    "@vitest/coverage-v8": "3.2.4",
+    "@vitest/coverage-v8": "^3.2.4",
     "@playwright/test": "^1.40.0"
   }
 }
