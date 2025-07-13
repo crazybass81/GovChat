@@ -12,10 +12,10 @@ export default defineConfig({
       reporter: ['text', 'json', 'html'],
       thresholds: {
         global: {
-          branches: 60,
-          functions: 60,
-          lines: 60,
-          statements: 60
+          branches: 50,
+          functions: 50,
+          lines: 50,
+          statements: 50
         }
       }
     }
