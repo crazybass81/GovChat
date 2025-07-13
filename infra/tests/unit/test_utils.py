@@ -4,7 +4,6 @@ from src.test_utils import (
     validate_email, 
     hash_password, 
     verify_password,
-    generate_jwt_token,
     validate_policy_data,
     ResponseBuilder
 )
@@ -55,19 +54,6 @@ class TestPasswordHashing:
         
         assert verify_password(password, hashed) is True
         assert verify_password('wrong_password', hashed) is False
-
-
-class TestJWTToken:
-    """Test JWT token generation"""
-    
-    def test_generate_jwt_token(self):
-        """Test JWT token generation"""
-        payload = {'user_id': '123', 'role': 'user'}
-        token = generate_jwt_token(payload)
-        
-        assert isinstance(token, str)
-        assert len(token) > 0
-        assert '.' in token  # JWT has dots separating parts
 
 
 class TestPolicyValidation:

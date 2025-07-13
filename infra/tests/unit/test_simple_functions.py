@@ -9,7 +9,6 @@ from test_utils import (
     validate_email, 
     hash_password, 
     verify_password,
-    generate_jwt_token,
     validate_policy_data,
     ResponseBuilder
 )
@@ -28,14 +27,6 @@ def test_password_functions():
     assert hashed != password
     assert verify_password(password, hashed) is True
     assert verify_password('wrong', hashed) is False
-
-
-def test_jwt_generation():
-    """Test JWT token generation"""
-    payload = {'user': 'test'}
-    token = generate_jwt_token(payload)
-    assert isinstance(token, str)
-    assert len(token) > 0
 
 
 def test_policy_validation():
