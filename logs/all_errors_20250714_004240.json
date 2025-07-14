@@ -1,0 +1,72 @@
+{
+  "lambda_errors": {
+    "GovChat-ChatbotLambda": [],
+    "GovChat-SearchLambda": [
+      {
+        "timestamp": "2025-07-13T23:32:53.905000",
+        "message": "[ERROR] Runtime.ImportModuleError: Unable to import module 'functions.search_handler': No module named 'error_handler'\nTraceback (most recent call last):",
+        "logStream": "2025/07/13/GovChatStack-SearchLambdaE9895880-vLOMPc9kjk4w[$LATEST]018a1cd28a6b4202a4fc8c9c800ce3c5"
+      },
+      {
+        "timestamp": "2025-07-13T23:32:54.174000",
+        "message": "[ERROR] Runtime.ImportModuleError: Unable to import module 'functions.search_handler': No module named 'error_handler'\nTraceback (most recent call last):",
+        "logStream": "2025/07/13/GovChatStack-SearchLambdaE9895880-vLOMPc9kjk4w[$LATEST]018a1cd28a6b4202a4fc8c9c800ce3c5"
+      },
+      {
+        "timestamp": "2025-07-14T00:07:03.158000",
+        "message": "[ERROR] Runtime.ImportModuleError: Unable to import module 'functions.search_handler': No module named 'error_handler'\nTraceback (most recent call last):",
+        "logStream": "2025/07/13/GovChatStack-SearchLambdaE9895880-vLOMPc9kjk4w[$LATEST]911ee8397b70454a8b048d70792af8cf"
+      },
+      {
+        "timestamp": "2025-07-14T00:07:03.388000",
+        "message": "[ERROR] Runtime.ImportModuleError: Unable to import module 'functions.search_handler': No module named 'error_handler'\nTraceback (most recent call last):",
+        "logStream": "2025/07/13/GovChatStack-SearchLambdaE9895880-vLOMPc9kjk4w[$LATEST]911ee8397b70454a8b048d70792af8cf"
+      },
+      {
+        "timestamp": "2025-07-14T00:09:54.532000",
+        "message": "[ERROR] Runtime.ImportModuleError: Unable to import module 'functions.search_handler': No module named 'response_builder'\nTraceback (most recent call last):",
+        "logStream": "2025/07/13/GovChatStack-SearchLambdaE9895880-vLOMPc9kjk4w[$LATEST]0c1328b13f7a49d19e348c5ed994d3e4"
+      },
+      {
+        "timestamp": "2025-07-14T00:09:54.773000",
+        "message": "[ERROR] Runtime.ImportModuleError: Unable to import module 'functions.search_handler': No module named 'response_builder'\nTraceback (most recent call last):",
+        "logStream": "2025/07/13/GovChatStack-SearchLambdaE9895880-vLOMPc9kjk4w[$LATEST]0c1328b13f7a49d19e348c5ed994d3e4"
+      }
+    ],
+    "GovChat-MatchLambda": [],
+    "GovChat-ExtractLambda": [],
+    "GovChat-ExternalSyncLambda": [
+      {
+        "timestamp": "2025-07-14T00:27:05.488000",
+        "message": "[ERROR] Runtime.ImportModuleError: Unable to import module 'functions.external_data_sync_handler': cannot import name 'JSONDecodeError' from 'requests.compat' (/var/task/requests/compat.py)\nTraceback (most recent call last):",
+        "logStream": "2025/07/13/GovChatStack-ExternalSyncLambda6BCE88C0-ox75NIhlsmZ3[$LATEST]01ea968100a24da9b66bd385a782a16b"
+      },
+      {
+        "timestamp": "2025-07-14T00:27:05.714000",
+        "message": "[ERROR] Runtime.ImportModuleError: Unable to import module 'functions.external_data_sync_handler': cannot import name 'JSONDecodeError' from 'requests.compat' (/var/task/requests/compat.py)\nTraceback (most recent call last):",
+        "logStream": "2025/07/13/GovChatStack-ExternalSyncLambda6BCE88C0-ox75NIhlsmZ3[$LATEST]01ea968100a24da9b66bd385a782a16b"
+      }
+    ]
+  },
+  "cdk_errors": {
+    "cdk_status": "OK"
+  },
+  "git_status": {
+    "uncommitted_changes": [
+      "?? scripts/"
+    ],
+    "recent_commits": [
+      "20ce186 feat: /search 엔드포인트 수정 및 외부 API 연동 추가",
+      "dbff79b 🚀 AWS 배포 완료 및 헬스체크 업데이트",
+      "9a79782 🧹 코드베이스 정리 및 표준화 완료",
+      "cf11c0e 📚 coadreview.md 요구사항 반영 - AWS 배포 문서 업데이트",
+      "3e82288 📋 코드베이스 리뷰 및 정리 계획"
+    ]
+  },
+  "api_errors": [
+    {
+      "endpoint": "/question",
+      "error": "{\"message\": \"Internal server error\"}"
+    }
+  ]
+}
