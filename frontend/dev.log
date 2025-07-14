@@ -3896,3 +3896,33 @@ Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/
   syscall: 'open',
   path: '/home/ec2-user/gov-support-chat/frontend/.next/fallback-build-manifest.json'
 }
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
