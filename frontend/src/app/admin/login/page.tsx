@@ -1,62 +1,56 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { useAuthStore } from '@/lib/stores/authStore'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
 export default function AdminLoginPage() {
-  const [form, setForm] = useState({ email: '', password: '', error: '' })
   const router = useRouter()
-  const { login } = useAuthStore()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<string>('')
 
-  const handle = (k: keyof typeof form, v: string) =>
-    setForm({ ...form, [k]: v, error: '' })
-
-  const submit = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('') // 기존 오류 메시지 리셋
     try {
-      // TODO: adminAuthApi.login(form.email, form.password)
-      login({ id: form.email, email: form.email, role: 'admin' }, 'mock-token')
-      router.replace('/admin/policies')
-    } catch {
-      handle('error', '로그인 실패: 자격 증명을 확인하세요')
+      // TODO: 실제 인증 API 연동 또는 Firebase 인증 처리
+      // 예: await signInWithEmailAndPassword(auth, email, password);
+      // 임시로 성공 처리를 가정
+      router.replace('/admin')  // 로그인 성공 시 대시보드로 리디렉트
+    } catch (err) {
+      // 인증 실패 시 오류 표시
+      setError('로그인 실패: 자격 증명을 확인하세요.')
     }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <form
-        onSubmit={submit}
-        className="w-full max-w-sm bg-surface p-8 rounded-medium shadow space-y-4"
-      >
-        <h1 className="text-2xl font-semibold text-center">관리자 로그인</h1>
-
-        {form.error && <p className="text-error text-sm">{form.error}</p>}
-
-        <input
-          className="border p-2 w-full focus-visible:outline-2 focus-visible:outline-primary"
-          placeholder="이메일"
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <form onSubmit={handleLogin} className="w-full max-w-sm bg-white p-6 rounded shadow-md">
+        <h1 className="text-2xl font-bold text-center mb-4">관리자 로그인</h1>
+        {/* 이메일 입력 */}
+        <Input
           type="email"
-          value={form.email}
-          onChange={(e) => handle('email', e.target.value)}
+          placeholder="이메일"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="mb-3"
+          required
         />
-        <input
-          className="border p-2 w-full focus-visible:outline-2 focus-visible:outline-primary"
-          placeholder="비밀번호"
+        {/* 비밀번호 입력 */}
+        <Input
           type="password"
-          value={form.password}
-          onChange={(e) => handle('password', e.target.value)}
+          placeholder="비밀번호"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="mb-4"
+          required
         />
-
-        <button className="w-full bg-primary text-white py-2 rounded-medium focus-visible:outline-2 focus-visible:outline-primary" type="submit">
-          로그인
-        </button>
-
-        <div className="flex justify-between text-sm">
-          <Link href="/admin/find-id">아이디 찾기</Link>
-          <Link href="/admin/reset-password">비밀번호 찾기</Link>
-        </div>
+        {/* 오류 메시지 표시 */}
+        {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
+        {/* 로그인 버튼 */}
+        <Button type="submit" className="w-full">로그인</Button>
       </form>
     </div>
   )
