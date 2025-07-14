@@ -1,22 +1,39 @@
 """
-검색 핸들러
+검색 핸들러 - 간단한 버전
 """
 
 import json
+import os
 from aws_lambda_powertools import Logger
-from error_handler import handle_error
-from response_builder import build_response
-from logger_config import setup_logger
 
-logger = setup_logger(__name__)
+logger = Logger()
 
 def handler(event, context):
     """검색 Lambda 핸들러"""
     try:
-        body = json.loads(event.get('body', '{}'))
-        query = body.get('q', '')
+        # GET 요청의 쿼리 파라미터 처리
+        query_params = event.get('queryStringParameters') or {}
+        query = query_params.get('q', '')
         
-        logger.info("Search request", extra={"query": query})
+        # POST 요청의 body도 지원
+        if not query and event.get('body'):
+            body = json.loads(event.get('body', '{}'))
+            query = body.get('q', '')
+        
+        if not query:
+            return {
+                'statusCode': 400,
+                'headers': {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': '*'
+                },
+                'body': json.dumps({
+                    'error': '검색어(q)가 필요합니다',
+                    'example': '/search?q=창업지원'
+                }, ensure_ascii=False)
+            }
+        
+        logger.info("Search request", extra={"query": query, "method": event.get('httpMethod')})
         
         # 간단한 검색 결과 반환
         results = [
@@ -34,10 +51,34 @@ def handler(event, context):
             }
         ]
         
-        return build_response({
-            'results': results,
-            'total': len(results)
-        })
+        # 검색어에 따른 필터링 (간단한 예시)
+        filtered_results = []
+        for result in results:
+            if query.lower() in result['title'].lower() or query.lower() in result['description'].lower():
+                filtered_results.append(result)
+        
+        return {
+            'statusCode': 200,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'query': query,
+                'results': filtered_results,
+                'total': len(filtered_results)
+            }, ensure_ascii=False)
+        }
         
     except Exception as e:
-        return handle_error(e, "검색 처리 중 오류가 발생했습니다")
+        logger.error("Search handler error", extra={"error": str(e)})
+        return {
+            'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
+            },
+            'body': json.dumps({
+                'error': '검색 처리 중 오류가 발생했습니다'
+            }, ensure_ascii=False)
+        }

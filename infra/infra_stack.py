@@ -312,6 +312,7 @@ class InfraStack(Stack):
             "AdminAuthLambda",
             "PolicyLambda",
             "UserProfileLambda",
+            "ExternalSyncLambda",
         ]
 
         for name in lambda_names:
@@ -446,6 +447,21 @@ class InfraStack(Stack):
             layers=self.layer_stack.get_layers_for_function("user_auth"),
         )
 
+        # 외부 데이터 동기화 Lambda
+        self.external_sync_lambda = _lambda.Function(
+            self,
+            "ExternalSyncLambda",
+            runtime=_lambda.Runtime.PYTHON_3_12,
+            handler="functions.external_data_sync_handler.handler",
+            code=_lambda.Code.from_asset("src"),
+            environment=common_env,
+            timeout=Duration.seconds(60),
+            memory_size=512,
+            tracing=_lambda.Tracing.ACTIVE,
+            layers=self.layer_stack.get_layers_for_function("external_sync"),
+            log_group=self.log_groups["ExternalSyncLambda"],
+        )
+
         # 권한 설정
         functions = [
             self.chatbot_lambda,
@@ -456,6 +472,7 @@ class InfraStack(Stack):
             self.policy_lambda,
             self.user_profile_lambda,
             self.user_auth_lambda,
+            self.external_sync_lambda,
         ]
         for func in functions:
             self.cache_table.grant_read_write_data(func)
@@ -565,6 +582,7 @@ class InfraStack(Stack):
 
         # /search 엔드포인트
         search_resource = self.api.root.add_resource("search")
+        search_resource.add_method("GET", apigw.LambdaIntegration(self.search_lambda))
         search_resource.add_method("POST", apigw.LambdaIntegration(self.search_lambda))
 
         # /match 엔드포인트
@@ -592,6 +610,13 @@ class InfraStack(Stack):
 
         publish_resource = policy_id_resource.add_resource("publish")
         publish_resource.add_method("POST", apigw.LambdaIntegration(self.policy_lambda))
+
+        # 외부 데이터 동기화 엔드포인트
+        sync_resource = admin_resource.add_resource("sync-policies")
+        sync_resource.add_method("POST", apigw.LambdaIntegration(self.external_sync_lambda))
+        
+        search_external_resource = admin_resource.add_resource("search-external")
+        search_external_resource.add_method("GET", apigw.LambdaIntegration(self.external_sync_lambda))
 
         # A3: 사용자 프로필 엔드포인트
         users_resource = self.api.root.add_resource("users")

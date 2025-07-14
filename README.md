@@ -1,8 +1,20 @@
-# GovChat - 정부지원사업 맞춤 매칭 챗봇
+# 🚀 GovChat - 정부지원사업 맞춤 매칭 챗봇
 
-Review_02_1.md 권장사항을 반영한 엔터프라이즈급 서버리스 챗봇 시스템
+**배포 완료!** 정부 재정 지원사업 정보를 AI로 맞춤 매칭해주는 서버리스 챗봇 시스템
 
-## 🚀 주요 개선사항 (v3.0)
+## 🎉 배포 현황 (2025-01-13)
+
+### ✅ 배포 완료
+- **AWS 스택**: 3개 스택 완전 배포
+- **Lambda 함수**: 8개 함수 정상 동작
+- **API 엔드포인트**: https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/
+- **OpenSearch**: https://xv4xqd9c2ttr1a9vl23k.us-east-1.aoss.amazonaws.com
+- **헬스체크**: /question, /extract, /match 정상 ✅
+
+### ⚠️ 수정 필요
+- **/search 엔드포인트**: 현재 오류 발생 중
+
+## 🏗️ 주요 기능
 
 ### 보안 강화
 - **IAM 최소권한 원칙**: 함수별 세분화된 권한 설정
@@ -28,14 +40,16 @@ Review_02_1.md 권장사항을 반영한 엔터프라이즈급 서버리스 챗�
 - **부하 테스트**: RPS 제어, 동시성, 한계점 탐색
 - **커버리지 측정**: 80% 최소 커버리지 요구사항
 
-## 📊 SLA 목표
+## 📊 현재 상태
 
-| 메트릭 | 목표 | 현재 달성 |
-|--------|------|-----------|
-| 가용성 | 99.5% | 99.4% |
-| P95 응답시간 | < 1.2초 | 620ms |
-| 에러율 | < 2% | 1.2% |
-| 캐시 히트율 | > 70% | 85% |
+| 구성요소 | 상태 | 비고 |
+|----------|------|------|
+| 인프라 배포 | ✅ 완료 | 3개 스택 배포 완료 |
+| Lambda 함수 | ✅ 정상 | 8개 함수 동작 중 |
+| API Gateway | ✅ 정상 | 대부분 엔드포인트 정상 |
+| DynamoDB | ✅ 정상 | 5개 테이블 운영 중 |
+| OpenSearch | ⚠️ 부분 | 컬렉션 생성, 인덱싱 미완성 |
+| 외부 API 연동 | ❌ 미완성 | 공공데이터 포털 연동 필요 |
 
 ## 🏗️ 아키텍처
 
@@ -95,194 +109,170 @@ cdk --version
 pip install bandit pytest-cov safety ruff mypy
 ```
 
-### 백엔드 배포
+### 🎯 다음 작업 (우선순위)
+
+#### 🚨 긴급 (즉시 필요)
+1. **/search 엔드포인트 수정** - 현재 오류 발생
+2. **외부 공공데이터 API 연동** - 핵심 기능
+3. **OpenSearch 벡터 검색 완성** - "원서치" 시스템
+
+#### ⚠️ 중요 (단기 목표)
+4. **실명 인증 시스템** - 보안 강화
+5. **관리자 대시보드 완성** - 운영 도구
+6. **성능 최적화** - 사용자 경험
+
+### 🛠️ 개발 환경 설정
+
+#### 백엔드 (이미 배포됨)
 ```bash
-# 의존성 설치
-cd infra
-pip install -r requirements.txt
+# 현재 배포된 상태 확인
+aws cloudformation describe-stacks --stack-name GovChatStack
 
-# CDK 부트스트랩 (최초 1회)
-cdk bootstrap
-
-# 배포
-cdk deploy --all
-
-# 배포 확인
-python ../scripts/health-check.py
+# 헬스체크
+curl https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/question
 ```
 
-### 프론트엔드 설정
+#### 프론트엔드 개발
 ```bash
-# 프론트엔드 디렉토리로 이동
 cd frontend
-
-# 의존성 설치
 npm install
-
-# 개발 서버 실행
-npm run dev
-
-# 프로덕션 빌드
-npm run build
-npm start
+npm run dev  # http://localhost:3000
 ```
 
-## 🧪 테스트
+## 🧪 API 테스트
 
-### 단위 테스트 (커버리지 포함)
+### 현재 동작하는 엔드포인트
 ```bash
-cd infra
-pytest src/tests/ ../tests/ -v --cov=src --cov-report=term-missing --cov-fail-under=80
+# 질문 처리 (정상)
+curl -X POST https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/question \
+  -H "Content-Type: application/json" \
+  -d '{"message": "창업 지원 사업 찾고 있어요"}'
+
+# 데이터 추출 (정상)
+curl -X POST https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/extract \
+  -H "Content-Type: application/json" \
+  -d '{"text": "만 39세 이하 청년 창업자 지원사업"}'
+
+# 매칭 (정상)
+curl -X POST https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/match \
+  -H "Content-Type: application/json" \
+  -d '{"userProfile": {"age": 30}, "query": "창업지원"}'
 ```
 
-### 보안 테스트
+### 수정 필요한 엔드포인트
 ```bash
-# SAST 스캔
-bandit -r src/ -ll
-
-# 취약점 검사
-safety check
-
-# 보안 테스트 실행
-pytest ../tests/test_security.py -v
+# 검색 (현재 오류)
+curl https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/search?q=창업
+# ❌ 오류 발생 - 수정 필요
 ```
 
-### Chaos 테스트
+## 📈 현재 배포된 리소스
+
+### AWS 리소스 현황
+- **Lambda 함수**: 8개 (Python 3.12)
+- **DynamoDB 테이블**: 5개 (KMS 암호화)
+- **S3 버킷**: 1개 (데이터 저장)
+- **OpenSearch 컬렉션**: 1개 (벡터 검색)
+- **API Gateway**: 1개 (REST API)
+- **CloudWatch**: 대시보드 & 알람
+
+### 로그 확인
 ```bash
-# 복원력 테스트
-pytest ../tests/test_chaos.py -v
+# Lambda 함수 로그 확인
+aws logs describe-log-groups --log-group-name-prefix "/aws/lambda/GovChat"
 
-# 부하 테스트
-python ../tests/test_load.py
-```
-
-## 📈 모니터링
-
-### 핵심 메트릭
-- **Lambda**: 에러율, P95 지연시간, 동시 실행 수
-- **DynamoDB**: 스로틀링, 소비 용량, 캐시 히트율
-- **OpenSearch**: 쿼리 지연시간, 인덱스 상태
-- **API Gateway**: 4XX/5XX 에러, 요청 수
-
-### 대시보드 접근
-```bash
-# CloudWatch 대시보드
-aws cloudwatch get-dashboard --dashboard-name GovChat-Operations
-
-# 알람 상태 확인
-aws cloudwatch describe-alarms --alarm-names GovChat-System-Alarm
-```
-
-### 로그 분석
-```bash
-# 에러 로그 조회
+# 최근 에러 로그
 aws logs filter-log-events \
-  --log-group-name "/aws/lambda/GovChat-ChatbotLambda" \
-  --filter-pattern "ERROR" \
-  --start-time $(date -d '1 hour ago' +%s)000
+  --log-group-name "/aws/lambda/GovChat-SearchLambda" \
+  --filter-pattern "ERROR"
 ```
 
-## 🚨 운영
+## 🔧 개발 작업
 
-### 알람 대응
-1. **에러율 > 2%**: [Runbook](docs/runbook.md#21-lambda-에러율-알람--2) 참조
-2. **P95 지연 > 1초**: [Runbook](docs/runbook.md#22-p95-지연시간-알람--1초) 참조
-3. **DynamoDB 스로틀링**: [Runbook](docs/runbook.md#23-dynamodb-스로틀링-알람) 참조
-
-### 정기 점검
-- **일일**: Lambda 상태, 캐시 히트율, 에러 로그
-- **주간**: 보안 설정, 성능 메트릭, 비용 분석
-- **월간**: 용량 계획, SLA 검토, 아키텍처 최적화
-
-### 장애 복구
+### /search 엔드포인트 수정
 ```bash
-# Lambda 롤백
-aws lambda update-function-configuration \
-  --function-name GovChat-ChatbotLambda \
-  --code-sha-256 <previous-version>
+# 현재 오류 확인
+aws logs filter-log-events \
+  --log-group-name "/aws/lambda/GovChat-SearchLambda" \
+  --filter-pattern "ERROR" \
+  --max-items 10
 
-# DynamoDB 백업 복구
-aws dynamodb restore-table-from-backup \
-  --target-table-name govchat-cache-v3-restored \
-  --backup-arn <backup-arn>
+# 함수 코드 위치
+# infra/src/functions/search_handler.py
 ```
 
-## 📊 성능 벤치마크
+### 외부 API 연동 구현
+```bash
+# 공공데이터 포털 API 키 설정
+# API 키: 0259O7/...== (환경변수 설정 필요)
 
-### 부하 테스트 결과
-```
-RPS: 100 → 성공률 99.2%, P95 580ms ✅
-RPS: 200 → 성공률 98.8%, P95 820ms ✅
-RPS: 300 → 성공률 97.1%, P95 1150ms ⚠️
-RPS: 400 → 성공률 94.3%, P95 1580ms ❌
-```
-
-### 동시성 테스트
-- **1000개 동시 요청**: 성공률 98.7%, 평균 응답시간 420ms
-- **Cold Start 비율**: < 5% (Provisioned Concurrency 적용)
-
-## 🔒 보안
-
-### 암호화
-- **전송 중**: TLS 1.2+ (API Gateway, Lambda)
-- **저장 시**: KMS 고객 관리 키 (DynamoDB, S3)
-- **키 로테이션**: 자동 (연 1회)
-
-### 접근 제어
-- **IAM**: 최소권한 원칙, 조건부 정책
-- **VPC**: 프라이빗 서브넷, 보안 그룹
-- **API**: 키 기반 인증, Rate Limiting
-
-### 규정 준수
-- **ISMS-P**: 개인정보 처리 시스템 인증 준비
-- **GDPR**: 데이터 최소화, 삭제권 보장
-- **감사**: CloudTrail 로그, 접근 기록 보관
-
-## 🔄 CI/CD
-
-### GitHub Actions 파이프라인
-```yaml
-1. 코드 품질 검사 (Ruff, MyPy)
-2. 보안 스캔 (Bandit, Safety)
-3. 단위 테스트 (커버리지 80%+)
-4. IAM 정책 시뮬레이션
-5. CDK 배포 (카나리 배포)
-6. 헬스체크 및 검증
+# 구현 위치
+# infra/src/functions/external_data_sync_handler.py
 ```
 
-### 배포 전략
-- **Blue/Green**: Lambda Alias 기반
-- **카나리**: 10% → 50% → 100% 점진적 배포
-- **롤백**: 자동 (에러율 > 5% 시)
+## 📊 헬스체크 결과
+
+### 현재 상태 (2025-01-13)
+| 엔드포인트 | 상태 | 응답시간 | 비고 |
+|-----------|------|----------|------|
+| /question | ✅ OK | 0.69s | 정상 동작 |
+| /extract | ✅ OK | 1.12s | 정상 동작 |
+| /match | ✅ OK | 0.68s | 정상 동작 |
+| /search | ❌ FAIL | - | **수정 필요** |
+
+## 🔒 보안 설정
+
+### 현재 적용된 보안
+- **KMS 암호화**: DynamoDB, S3 데이터 암호화
+- **HTTPS**: 모든 API 통신 암호화
+- **IAM 최소권한**: Lambda 함수별 세분화된 권한
+- **JWT 인증**: 사용자 세션 관리
+
+### 관리자 계정
+- **이메일**: archt723@gmail.com
+- **비밀번호**: 1q2w3e2w1q! (변경 권장)
+- **권한**: 전체 시스템 관리
+
+## 🔄 Git 관리
+
+### 현재 상태
+- ✅ **모든 변경사항 커밋 완료**
+- ✅ **원격 저장소 푸시 완료**
+- ✅ **배포 상태 문서화 완료**
+
+### 브랜치 전략
+- **main**: 프로덕션 배포 완료 상태
+- **develop**: 개발 진행 중
+- **feature/***: 기능별 개발 브랜치
 
 ## 📚 문서
 
-- [운영 Runbook](docs/runbook.md)
-- [로그 쿼리 모음](docs/log-queries.md)
-- [API 문서](docs/api.md)
-- [아키텍처 결정 기록](docs/adr/)
+- **[아키텍처 개요](ARCHITECTURE_OVERVIEW.md)** - 시스템 전체 구조
+- **[AWS 배포 현황](AWS_DEPLOYMENT_STATUS.md)** - 상세 배포 정보
+- **[디렉토리 구조](DIRECTORY_STRUCTURE.md)** - 프로젝트 구조
+- **[코드 리뷰](docs/CODE_REVIEW.md)** - 개발 가이드
+- **[운영 가이드](docs/runbook.md)** - 운영 절차
+- **[로그 쿼리](docs/log-queries.md)** - 모니터링 쿼리
 
-## 🤝 기여
+## 🎯 프로젝트 목표
 
-1. Fork 프로젝트
-2. Feature 브랜치 생성
-3. 테스트 작성 및 실행
-4. Pull Request 제출
+**GovChat**은 정부 재정 지원사업 정보를 AI로 분석하여 사용자에게 맞춤 매칭해주는 서비스입니다.
 
-### 코드 품질 기준
-- **테스트 커버리지**: 80% 이상
-- **보안 스캔**: Bandit 통과
-- **성능**: P95 < 1.2초 유지
-- **문서화**: 모든 공개 함수 docstring
+### 핵심 기능
+1. **통합 데이터 수집**: 공공데이터 포털 API 연동
+2. **AI 조건 추론**: 대화에서 매칭 조건 자동 추출
+3. **원서치 시스템**: OpenSearch 기반 통합 검색
+4. **점진적 프로필**: 대화 기반 사용자 프로필 완성
 
-## 📞 지원
-
-- **이슈 트래킹**: GitHub Issues
-- **온콜 지원**: Slack #govchat-ops
-- **문서**: Wiki 페이지
+### 기술 스택
+- **Frontend**: Next.js + TypeScript + Tailwind CSS
+- **Backend**: AWS Lambda + Python 3.12
+- **Database**: DynamoDB + OpenSearch Serverless
+- **AI**: GPT-4 Mini + OpenAI Embeddings
+- **Infrastructure**: AWS CDK + CloudFormation
 
 ---
 
-**버전**: v3.0  
-**최종 업데이트**: 2025-07-10  
-**라이선스**: MIT
+**배포 상태**: ✅ 프로덕션 배포 완료  
+**다음 작업**: /search 엔드포인트 수정  
+**최종 업데이트**: 2025-01-13
