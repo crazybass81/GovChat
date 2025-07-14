@@ -3844,3 +3844,55 @@ Import trace for requested module:
 <w>  at file dependencies /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
 <w>  at file /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
 <w>  at resolve commonjs /home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/build/webpack/loaders/next-swc-loader.js
+ ⨯ ./node_modules/next-auth/react.js
+Module build failed: Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/node_modules/next-auth/react.js'
+
+Import trace for requested module:
+./node_modules/next-auth/react.js
+./src/components/AuthNavigation.tsx
+ ⨯ Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/.next/fallback-build-manifest.json'
+    at readFileSync (node:fs:441:20)
+    at loadManifest (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/load-manifest.js:30:54)
+    at loadManifestWithRetries (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/load-components.js:34:51)
+    at async loadDefaultErrorComponentsImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/load-default-error-components.js:30:24)
+    at async DevServer.getFallbackErrorComponents (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/dev/next-dev-server.js:559:16)
+    at async DevServer.renderErrorToResponseImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:2035:40)
+    at async DevServer.renderToResponseImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:1855:30)
+    at async DevServer.pipeImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:851:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/next-server.js:266:17)
+    at async DevServer.handleRequestImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:748:17) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/home/ec2-user/gov-support-chat/frontend/.next/fallback-build-manifest.json'
+}
+Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/.next/fallback-build-manifest.json'
+    at readFileSync (node:fs:441:20)
+    at loadManifest (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/load-manifest.js:30:54)
+    at loadManifestWithRetries (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/load-components.js:34:51)
+    at async loadDefaultErrorComponentsImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/load-default-error-components.js:30:24)
+    at async DevServer.getFallbackErrorComponents (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/dev/next-dev-server.js:559:16)
+    at async DevServer.renderErrorToResponseImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:2035:40)
+    at async DevServer.renderToResponseImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:1855:30)
+    at async DevServer.pipeImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:851:25)
+    at async NextNodeServer.handleCatchallRenderRequest (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/next-server.js:266:17)
+    at async DevServer.handleRequestImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:748:17) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/home/ec2-user/gov-support-chat/frontend/.next/fallback-build-manifest.json'
+}
+Error: ENOENT: no such file or directory, open '/home/ec2-user/gov-support-chat/frontend/.next/fallback-build-manifest.json'
+    at readFileSync (node:fs:441:20)
+    at loadManifest (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/load-manifest.js:30:54)
+    at loadManifestWithRetries (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/load-components.js:34:51)
+    at async loadDefaultErrorComponentsImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/load-default-error-components.js:30:24)
+    at async DevServer.getFallbackErrorComponents (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/dev/next-dev-server.js:559:16)
+    at async DevServer.renderErrorToResponseImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:2035:40)
+    at async pipe.req.req (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:1892:30)
+    at async DevServer.pipeImpl (/home/ec2-user/gov-support-chat/frontend/node_modules/next/dist/server/base-server.js:851:25) {
+  errno: -2,
+  code: 'ENOENT',
+  syscall: 'open',
+  path: '/home/ec2-user/gov-support-chat/frontend/.next/fallback-build-manifest.json'
+}

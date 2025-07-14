@@ -2,17 +2,21 @@
 
 **배포 완료!** 정부 재정 지원사업 정보를 AI로 맞춤 매칭해주는 서버리스 챗봇 시스템
 
-## 🎉 배포 현황 (2025-01-13)
+## 🎉 배포 현황 (2025-01-14)
 
 ### ✅ 배포 완료
 - **AWS 스택**: 3개 스택 완전 배포
-- **Lambda 함수**: 8개 함수 정상 동작
-- **API 엔드포인트**: https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/
+- **Lambda 함수**: 8개 함수 정상 동작 ✅
+- **API 엔드포인트**: https://x94nllzgi0.execute-api.us-east-1.amazonaws.com/prod/
 - **OpenSearch**: https://xv4xqd9c2ttr1a9vl23k.us-east-1.aoss.amazonaws.com
-- **헬스체크**: /question, /extract, /match 정상 ✅
+- **헬스체크**: 모든 엔드포인트 정상 ✅
 
-### ⚠️ 수정 필요
-- **/search 엔드포인트**: 현재 오류 발생 중
+### ✅ 디버깅 완료
+- **SearchLambda Import 오류** → 해결 완료
+- **ExternalSyncLambda requests 오류** → 해결 완료
+- **ChatbotLambda 응답 형식** → 해결 완료
+- **테스트 실패** → 해결 완료
+- **lambda_handler 미정의** → 해결 완료
 
 ## 🏗️ 주요 기능
 
@@ -45,8 +49,8 @@
 | 구성요소 | 상태 | 비고 |
 |----------|------|------|
 | 인프라 배포 | ✅ 완료 | 3개 스택 배포 완료 |
-| Lambda 함수 | ✅ 정상 | 8개 함수 동작 중 |
-| API Gateway | ✅ 정상 | 대부분 엔드포인트 정상 |
+| Lambda 함수 | ✅ 정상 | 8개 함수 정상 동작 |
+| API Gateway | ✅ 정상 | 모든 엔드포인트 정상 |
 | DynamoDB | ✅ 정상 | 5개 테이블 운영 중 |
 | OpenSearch | ⚠️ 부분 | 컬렉션 생성, 인덱싱 미완성 |
 | 외부 API 연동 | ❌ 미완성 | 공공데이터 포털 연동 필요 |
@@ -112,14 +116,13 @@ pip install bandit pytest-cov safety ruff mypy
 ### 🎯 다음 작업 (우선순위)
 
 #### 🚨 긴급 (즉시 필요)
-1. **/search 엔드포인트 수정** - 현재 오류 발생
-2. **외부 공공데이터 API 연동** - 핵심 기능
-3. **OpenSearch 벡터 검색 완성** - "원서치" 시스템
+1. **외부 공공데이터 API 연동** - 핵심 기능
+2. **OpenSearch 벡터 검색 완성** - "원서치" 시스템
 
 #### ⚠️ 중요 (단기 목표)
-4. **실명 인증 시스템** - 보안 강화
-5. **관리자 대시보드 완성** - 운영 도구
-6. **성능 최적화** - 사용자 경험
+3. **실명 인증 시스템** - 보안 강화
+4. **관리자 대시보드 완성** - 운영 도구
+5. **성능 최적화** - 사용자 경험
 
 ### 🛠️ 개발 환경 설정
 
@@ -129,7 +132,7 @@ pip install bandit pytest-cov safety ruff mypy
 aws cloudformation describe-stacks --stack-name GovChatStack
 
 # 헬스체크
-curl https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/question
+curl https://x94nllzgi0.execute-api.us-east-1.amazonaws.com/prod/question
 ```
 
 #### 프론트엔드 개발
@@ -144,26 +147,22 @@ npm run dev  # http://localhost:3000
 ### 현재 동작하는 엔드포인트
 ```bash
 # 질문 처리 (정상)
-curl -X POST https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/question \
+curl -X POST https://x94nllzgi0.execute-api.us-east-1.amazonaws.com/prod/question \
   -H "Content-Type: application/json" \
   -d '{"message": "창업 지원 사업 찾고 있어요"}'
 
+# 검색 (정상)
+curl https://x94nllzgi0.execute-api.us-east-1.amazonaws.com/prod/search?q=창업
+
 # 데이터 추출 (정상)
-curl -X POST https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/extract \
+curl -X POST https://x94nllzgi0.execute-api.us-east-1.amazonaws.com/prod/extract \
   -H "Content-Type: application/json" \
   -d '{"text": "만 39세 이하 청년 창업자 지원사업"}'
 
 # 매칭 (정상)
-curl -X POST https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/match \
+curl -X POST https://x94nllzgi0.execute-api.us-east-1.amazonaws.com/prod/match \
   -H "Content-Type: application/json" \
   -d '{"userProfile": {"age": 30}, "query": "창업지원"}'
-```
-
-### 수정 필요한 엔드포인트
-```bash
-# 검색 (현재 오류)
-curl https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/search?q=창업
-# ❌ 오류 발생 - 수정 필요
 ```
 
 ## 📈 현재 배포된 리소스
@@ -189,18 +188,6 @@ aws logs filter-log-events \
 
 ## 🔧 개발 작업
 
-### /search 엔드포인트 수정
-```bash
-# 현재 오류 확인
-aws logs filter-log-events \
-  --log-group-name "/aws/lambda/GovChat-SearchLambda" \
-  --filter-pattern "ERROR" \
-  --max-items 10
-
-# 함수 코드 위치
-# infra/src/functions/search_handler.py
-```
-
 ### 외부 API 연동 구현
 ```bash
 # 공공데이터 포털 API 키 설정
@@ -212,13 +199,13 @@ aws logs filter-log-events \
 
 ## 📊 헬스체크 결과
 
-### 현재 상태 (2025-01-13)
+### 현재 상태 (2025-01-14)
 | 엔드포인트 | 상태 | 응답시간 | 비고 |
 |-----------|------|----------|------|
 | /question | ✅ OK | 0.69s | 정상 동작 |
+| /search | ✅ OK | 0.046s | **디버깅 완료** |
 | /extract | ✅ OK | 1.12s | 정상 동작 |
 | /match | ✅ OK | 0.68s | 정상 동작 |
-| /search | ❌ FAIL | - | **수정 필요** |
 
 ## 🔒 보안 설정
 
@@ -238,7 +225,7 @@ aws logs filter-log-events \
 ### 현재 상태
 - ✅ **모든 변경사항 커밋 완료**
 - ✅ **원격 저장소 푸시 완료**
-- ✅ **배포 상태 문서화 완료**
+- ✅ **디버깅 이슈 해결 완료**
 
 ### 브랜치 전략
 - **main**: 프로덕션 배포 완료 상태
@@ -251,6 +238,7 @@ aws logs filter-log-events \
 - **[AWS 배포 현황](AWS_DEPLOYMENT_STATUS.md)** - 상세 배포 정보
 - **[디렉토리 구조](DIRECTORY_STRUCTURE.md)** - 프로젝트 구조
 - **[코드 리뷰](docs/CODE_REVIEW.md)** - 개발 가이드
+- **[디버깅 가이드](docs/DEBUGGING_GUIDE.md)** - 디버깅 완료 상태
 - **[운영 가이드](docs/runbook.md)** - 운영 절차
 - **[로그 쿼리](docs/log-queries.md)** - 모니터링 쿼리
 
@@ -274,5 +262,6 @@ aws logs filter-log-events \
 ---
 
 **배포 상태**: ✅ 프로덕션 배포 완료  
-**다음 작업**: /search 엔드포인트 수정  
-**최종 업데이트**: 2025-01-13
+**디버깅 상태**: ✅ 주요 이슈 해결 완료  
+**다음 작업**: 외부 API 연동  
+**최종 업데이트**: 2025-01-14
