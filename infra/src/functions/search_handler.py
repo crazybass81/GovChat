@@ -6,6 +6,16 @@ import json
 import os
 from aws_lambda_powertools import Logger
 
+try:
+    from functions.error_handler import handle_error
+    from functions.response_builder import build_response
+except ImportError:
+    # 테스트 환경에서는 기본 처리
+    def handle_error(e, msg):
+        return {'statusCode': 500, 'body': json.dumps({'error': msg})}
+    def build_response(data, status=200):
+        return {'statusCode': status, 'body': json.dumps(data, ensure_ascii=False)}
+
 logger = Logger()
 
 def handler(event, context):

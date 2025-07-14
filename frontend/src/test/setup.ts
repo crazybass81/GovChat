@@ -1,4 +1,8 @@
+import { expect } from 'vitest'
 import '@testing-library/jest-dom'
+
+// expect를 전역으로 설정
+global.expect = expect
 import { vi } from 'vitest'
 
 // Mock Next.js router

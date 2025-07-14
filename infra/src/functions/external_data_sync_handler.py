@@ -3,9 +3,14 @@
 """
 
 import json
-import requests
 import boto3
 from aws_lambda_powertools import Logger
+
+try:
+    import requests
+except ImportError:
+    # requests 모듈이 없는 경우 기본 처리
+    requests = None
 
 logger = Logger()
 

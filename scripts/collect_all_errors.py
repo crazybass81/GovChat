@@ -80,6 +80,35 @@ def collect_git_errors():
     except Exception as e:
         return {'git_error': str(e)}
 
+def collect_test_errors():
+    """Python 및 프론트엔드 테스트 오류 수집"""
+    test_errors = []
+    
+    try:
+        # Python 테스트 실행
+        result = subprocess.run(['python', '-m', 'pytest', 'tests/', '-v'], capture_output=True, text=True, timeout=120)
+        if result.returncode != 0:
+            test_errors.append({
+                'type': 'python_test_error',
+                'error': result.stdout[-1000:] + result.stderr[-500:]
+            })
+        
+        # 프론트엔드 테스트 실행
+        result = subprocess.run(['npm', 'test'], capture_output=True, text=True, cwd='frontend', timeout=60)
+        if result.returncode != 0:
+            test_errors.append({
+                'type': 'frontend_test_error',
+                'error': result.stdout[-500:]
+            })
+        
+    except Exception as e:
+        test_errors.append({
+            'type': 'test_collection_error',
+            'error': str(e)
+        })
+    
+    return test_errors
+
 def collect_frontend_errors():
     """Next.js 프론트엔드 오류 수집"""
     frontend_errors = []
@@ -187,8 +216,10 @@ def generate_debug_review(all_errors):
                            if isinstance(errors, list))
     api_error_count = len(all_errors['api_errors'])
     frontend_error_count = len(all_errors['frontend_errors'])
+    test_error_count = len(all_errors['test_errors'])
     
     review['summary'] = {
+        'test_errors': test_error_count,
         'frontend_errors': frontend_error_count,
         'lambda_errors': lambda_error_count,
         'api_errors': api_error_count,
@@ -276,6 +307,7 @@ def main():
     
     # 모든 오류 수집
     all_errors = {
+        'test_errors': collect_test_errors(),
         'frontend_errors': collect_frontend_errors(),
         'lambda_errors': collect_lambda_errors(),
         'cdk_errors': collect_cdk_errors(),
