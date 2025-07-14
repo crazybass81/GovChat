@@ -246,3 +246,39 @@ Import trace for requested module:
  ✓ Compiled in 153ms (561 modules)
  ✓ Compiled in 217ms (610 modules)
  ✓ Compiled in 238ms (596 modules)
+ ✓ Compiled /admin/policies in 427ms (438 modules)
+ GET /admin/policies 200 in 561ms
+ GET /admin/policies 200 in 20ms
+ GET /admin/policies 200 in 20ms
+ ✓ Compiled /admin/policies/new in 85ms (443 modules)
+ GET /admin/policies/new 200 in 192ms
+ ✓ Compiled /admin/users in 256ms (996 modules)
+ GET /admin/users 200 in 337ms
+ ✓ Compiled /admin/login in 236ms (1004 modules)
+ GET /admin/login 200 in 310ms
+ ✓ Compiled in 333ms (615 modules)
+ ✓ Compiled in 228ms (566 modules)
+ ✓ Compiled /admin in 336ms (996 modules)
+ GET /admin 200 in 465ms
+ GET /admin 200 in 21ms
+ GET /admin 200 in 22ms
+ ✓ Compiled /admin/policies in 153ms (446 modules)
+ GET /admin/policies 200 in 242ms
+ GET /admin/policies 200 in 24ms
+ GET /admin 200 in 23ms
+ ✓ Compiled in 223ms (569 modules)
+ ✓ Compiled in 158ms (569 modules)
+ ⨯ src/app/admin/login/page.tsx
+You cannot have two parallel pages that resolve to the same path. Please check /admin/(auth)/login/page and /admin/login/page. Refer to the route group docs for more information: https://nextjs.org/docs/app/building-your-application/routing/route-groups
+ ⨯ src/app/admin/(auth)/login/page.tsx
+You cannot have two parallel pages that resolve to the same path. Please check /admin/(auth)/login/page and /admin/login/page. Refer to the route group docs for more information: https://nextjs.org/docs/app/building-your-application/routing/route-groups
+ ○ Compiling /_not-found ...
+ ⨯ src/app/admin/(auth)/login/page.tsx
+You cannot have two parallel pages that resolve to the same path. Please check /admin/(auth)/login/page and /admin/login/page. Refer to the route group docs for more information: https://nextjs.org/docs/app/building-your-application/routing/route-groups
+ GET /admin/login 500 in 761ms
+ ✓ Compiled /_not-found in 135ms (561 modules)
+ GET /admin/login 500 in 15ms
+ ✓ Compiled in 122ms (558 modules)
+ GET /admin/login 500 in 13ms
+ GET /admin/login 500 in 18ms
+ ✓ Compiled in 92ms (544 modules)
