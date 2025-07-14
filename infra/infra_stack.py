@@ -596,8 +596,7 @@ class InfraStack(Stack):
         # A1: 관리자 인증 엔드포인트
         admin_resource = self.api.root.add_resource("admin")
         auth_resource = admin_resource.add_resource("auth")
-        login_resource = auth_resource.add_resource("login")
-        login_resource.add_method("POST", apigw.LambdaIntegration(self.admin_auth_lambda))
+        auth_resource.add_method("POST", apigw.LambdaIntegration(self.admin_auth_lambda))
 
         # A2: 정책 CRUD 엔드포인트
         policies_resource = self.api.root.add_resource("policies")

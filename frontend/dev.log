@@ -11,274 +11,38 @@
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/next isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/react-dom isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/next isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
- ✓ Ready in 1657ms
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-win32-x64-msvc isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-linux-arm64-musl isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-win32-arm64-msvc isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-linux-arm64-gnu isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-darwin-x64 isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-darwin-arm64 isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
- ○ Compiling /admin/policies ...
- ✓ Compiled /admin/policies in 3.2s (766 modules)
- GET /admin/policies 200 in 3375ms
+ ✓ Ready in 1552ms
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-win32-x64-msvc isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-win32-arm64-msvc isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-linux-arm64-musl isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-linux-arm64-gnu isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-darwin-x64 isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-darwin-arm64 isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
- ✓ Compiled /admin in 403ms (759 modules)
- GET /admin 200 in 512ms
- ✓ Compiled /admin/policies in 69ms (396 modules)
- GET /admin/policies 200 in 117ms
- ✓ Compiled /admin/policies/new in 198ms (755 modules)
- GET /admin/policies/new 200 in 267ms
- ✓ Compiled / in 242ms (746 modules)
- GET / 200 in 360ms
- ✓ Compiled in 243ms (370 modules)
- ✓ Compiled in 155ms (370 modules)
- ✓ Compiled in 238ms (370 modules)
- ⨯ ./src/app/admin/policies/page.tsx:5:1
-Module not found: Can't resolve '@/components/ui/button'
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m [90m 4 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { [33mButton[39m } [36mfrom[39m [32m'@/components/ui/button'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36minterface[39m [33mPolicy[39m {[0m
-[0m [90m 8 |[39m   id[33m:[39m number[33m;[39m[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/app/admin/policies/page.tsx:5:1
-Module not found: Can't resolve '@/components/ui/button'
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m [90m 4 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { [33mButton[39m } [36mfrom[39m [32m'@/components/ui/button'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36minterface[39m [33mPolicy[39m {[0m
-[0m [90m 8 |[39m   id[33m:[39m number[33m;[39m[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/app/admin/policies/page.tsx:5:1
-Module not found: Can't resolve '@/components/ui/button'
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m [90m 4 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { [33mButton[39m } [36mfrom[39m [32m'@/components/ui/button'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36minterface[39m [33mPolicy[39m {[0m
-[0m [90m 8 |[39m   id[33m:[39m number[33m;[39m[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/app/admin/policies/page.tsx:5:1
-Module not found: Can't resolve '@/components/ui/button'
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m [90m 4 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { [33mButton[39m } [36mfrom[39m [32m'@/components/ui/button'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36minterface[39m [33mPolicy[39m {[0m
-[0m [90m 8 |[39m   id[33m:[39m number[33m;[39m[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/app/admin/policies/page.tsx:5:1
-Module not found: Can't resolve '@/components/ui/button'
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m [90m 4 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { [33mButton[39m } [36mfrom[39m [32m'@/components/ui/button'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36minterface[39m [33mPolicy[39m {[0m
-[0m [90m 8 |[39m   id[33m:[39m number[33m;[39m[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/app/admin/page.tsx:4:1
-Module not found: Can't resolve '@/components/ui/card'
-[0m [90m 2 |[39m[0m
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mCard[39m[33m,[39m [33mCardHeader[39m[33m,[39m [33mCardTitle[39m[33m,[39m [33mCardContent[39m } [36mfrom[39m [32m'@/components/ui/card'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m [90m// import { Chart } from '@/components/Chart'  // 차트 컴포넌트를 사용하는 경우 임포트[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mAdminDashboardPage[39m() {[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/app/admin/page.tsx:4:1
-Module not found: Can't resolve '@/components/ui/card'
-[0m [90m 2 |[39m[0m
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mCard[39m[33m,[39m [33mCardHeader[39m[33m,[39m [33mCardTitle[39m[33m,[39m [33mCardContent[39m } [36mfrom[39m [32m'@/components/ui/card'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m [90m// import { Chart } from '@/components/Chart'  // 차트 컴포넌트를 사용하는 경우 임포트[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mAdminDashboardPage[39m() {[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ○ Compiling /admin/policies/new ...
- ⨯ ./src/app/admin/page.tsx:4:1
-Module not found: Can't resolve '@/components/ui/card'
-[0m [90m 2 |[39m[0m
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mCard[39m[33m,[39m [33mCardHeader[39m[33m,[39m [33mCardTitle[39m[33m,[39m [33mCardContent[39m } [36mfrom[39m [32m'@/components/ui/card'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m [90m// import { Chart } from '@/components/Chart'  // 차트 컴포넌트를 사용하는 경우 임포트[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mAdminDashboardPage[39m() {[0m
-
-https://nextjs.org/docs/messages/module-not-found
- GET /admin/policies/new 500 in 2183ms
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-darwin-x64 isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
+ ○ Compiling /admin/login ...
+ ✓ Compiled /admin/login in 3.3s (786 modules)
+ GET /admin/login 200 in 3434ms
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-win32-x64-msvc isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-win32-arm64-msvc isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-linux-arm64-musl isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-darwin-x64 isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-linux-arm64-gnu isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
+<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-darwin-x64 isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
 <w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/@next/swc-darwin-arm64 isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/react-dom isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
-<w> [webpack.cache.PackFileCacheStrategy/webpack.FileSystemInfo] Managed item /home/ec2-user/gov-support-chat/node_modules/next isn't a directory or doesn't contain a package.json (see snapshot.managedPaths option)
- ⨯ ./src/app/admin/policies/page.tsx:5:1
-Module not found: Can't resolve '@/components/ui/button'
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m [90m 4 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { [33mButton[39m } [36mfrom[39m [32m'@/components/ui/button'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36minterface[39m [33mPolicy[39m {[0m
-[0m [90m 8 |[39m   id[33m:[39m number[33m;[39m[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/app/admin/page.tsx:4:1
-Module not found: Can't resolve '@/components/ui/card'
-[0m [90m 2 |[39m[0m
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mCard[39m[33m,[39m [33mCardHeader[39m[33m,[39m [33mCardTitle[39m[33m,[39m [33mCardContent[39m } [36mfrom[39m [32m'@/components/ui/card'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m [90m// import { Chart } from '@/components/Chart'  // 차트 컴포넌트를 사용하는 경우 임포트[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mAdminDashboardPage[39m() {[0m
-
-https://nextjs.org/docs/messages/module-not-found
- GET /admin/policies 500 in 461ms
- ⨯ ./src/app/admin/page.tsx:4:1
-Module not found: Can't resolve '@/components/ui/card'
-[0m [90m 2 |[39m[0m
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mCard[39m[33m,[39m [33mCardHeader[39m[33m,[39m [33mCardTitle[39m[33m,[39m [33mCardContent[39m } [36mfrom[39m [32m'@/components/ui/card'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m [90m// import { Chart } from '@/components/Chart'  // 차트 컴포넌트를 사용하는 경우 임포트[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mAdminDashboardPage[39m() {[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/app/admin/page.tsx:4:1
-Module not found: Can't resolve '@/components/ui/card'
-[0m [90m 2 |[39m[0m
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mCard[39m[33m,[39m [33mCardHeader[39m[33m,[39m [33mCardTitle[39m[33m,[39m [33mCardContent[39m } [36mfrom[39m [32m'@/components/ui/card'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m [90m// import { Chart } from '@/components/Chart'  // 차트 컴포넌트를 사용하는 경우 임포트[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mAdminDashboardPage[39m() {[0m
-
-https://nextjs.org/docs/messages/module-not-found
- GET /admin 500 in 404ms
- GET /admin 500 in 8ms
- ⨯ ./src/app/admin/page.tsx:4:1
-Module not found: Can't resolve '@/components/ui/card'
-[0m [90m 2 |[39m[0m
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 4 |[39m [36mimport[39m { [33mCard[39m[33m,[39m [33mCardHeader[39m[33m,[39m [33mCardTitle[39m[33m,[39m [33mCardContent[39m } [36mfrom[39m [32m'@/components/ui/card'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 5 |[39m [90m// import { Chart } from '@/components/Chart'  // 차트 컴포넌트를 사용하는 경우 임포트[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mAdminDashboardPage[39m() {[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/app/admin/policies/page.tsx:5:1
-Module not found: Can't resolve '@/components/ui/button'
-[0m [90m 3 |[39m [36mimport[39m [33mReact[39m [36mfrom[39m [32m'react'[39m[33m;[39m[0m
-[0m [90m 4 |[39m [36mimport[39m [33mLink[39m [36mfrom[39m [32m'next/link'[39m[33m;[39m[0m
-[0m[31m[1m>[22m[39m[90m 5 |[39m [36mimport[39m { [33mButton[39m } [36mfrom[39m [32m'@/components/ui/button'[39m[33m;[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 6 |[39m[0m
-[0m [90m 7 |[39m [36minterface[39m [33mPolicy[39m {[0m
-[0m [90m 8 |[39m   id[33m:[39m number[33m;[39m[0m
-
-https://nextjs.org/docs/messages/module-not-found
- ⨯ ./src/components/ui/button.tsx:2:1
-Module not found: Can't resolve '@/lib/utils'
-[0m [90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
-[0m[31m[1m>[22m[39m[90m 2 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 3 |[39m[0m
-[0m [90m 4 |[39m [36mexport[39m [36minterface[39m [33mButtonProps[39m[0m
-[0m [90m 5 |[39m   [36mextends[39m [33mReact[39m[33m.[39m[33mButtonHTMLAttributes[39m[33m<[39m[33mHTMLButtonElement[39m[33m>[39m {[0m
-
-https://nextjs.org/docs/messages/module-not-found
-
-Import trace for requested module:
-./src/app/admin/policies/page.tsx
- ⨯ ./src/components/ui/button.tsx:2:1
-Module not found: Can't resolve '@/lib/utils'
-[0m [90m 1 |[39m [36mimport[39m [33m*[39m [36mas[39m [33mReact[39m [36mfrom[39m [32m"react"[39m[0m
-[0m[31m[1m>[22m[39m[90m 2 |[39m [36mimport[39m { cn } [36mfrom[39m [32m"@/lib/utils"[39m[0m
-[0m [90m   |[39m [31m[1m^[22m[39m[0m
-[0m [90m 3 |[39m[0m
-[0m [90m 4 |[39m [36mexport[39m [36minterface[39m [33mButtonProps[39m[0m
-[0m [90m 5 |[39m   [36mextends[39m [33mReact[39m[33m.[39m[33mButtonHTMLAttributes[39m[33m<[39m[33mHTMLButtonElement[39m[33m>[39m {[0m
-
-https://nextjs.org/docs/messages/module-not-found
-
-Import trace for requested module:
-./src/app/admin/policies/page.tsx
- ✓ Compiled /_not-found in 117ms (547 modules)
- ○ Compiling /admin ...
- ✓ Compiled /admin in 565ms (988 modules)
- GET /_next/static/webpack/f4a89845a58f0b8a.webpack.hot-update.json 404 in 771ms
- GET /admin 200 in 786ms
- ⚠ Fast Refresh had to perform a full reload due to a runtime error.
- GET /admin 200 in 17ms
- GET /admin 200 in 21ms
- ✓ Compiled in 272ms (610 modules)
- ✓ Compiled /admin in 226ms (438 modules)
- GET /admin 200 in 355ms
- ✓ Compiled in 221ms (561 modules)
- ✓ Compiled in 153ms (561 modules)
- ✓ Compiled in 217ms (610 modules)
- ✓ Compiled in 238ms (596 modules)
- ✓ Compiled /admin/policies in 427ms (438 modules)
- GET /admin/policies 200 in 561ms
- GET /admin/policies 200 in 20ms
- GET /admin/policies 200 in 20ms
- ✓ Compiled /admin/policies/new in 85ms (443 modules)
- GET /admin/policies/new 200 in 192ms
- ✓ Compiled /admin/users in 256ms (996 modules)
- GET /admin/users 200 in 337ms
- ✓ Compiled /admin/login in 236ms (1004 modules)
- GET /admin/login 200 in 310ms
- ✓ Compiled in 333ms (615 modules)
- ✓ Compiled in 228ms (566 modules)
- ✓ Compiled /admin in 336ms (996 modules)
- GET /admin 200 in 465ms
- GET /admin 200 in 21ms
- GET /admin 200 in 22ms
- ✓ Compiled /admin/policies in 153ms (446 modules)
- GET /admin/policies 200 in 242ms
- GET /admin/policies 200 in 24ms
- GET /admin 200 in 23ms
- ✓ Compiled in 223ms (569 modules)
- ✓ Compiled in 158ms (569 modules)
- ⨯ src/app/admin/login/page.tsx
-You cannot have two parallel pages that resolve to the same path. Please check /admin/(auth)/login/page and /admin/login/page. Refer to the route group docs for more information: https://nextjs.org/docs/app/building-your-application/routing/route-groups
- ⨯ src/app/admin/(auth)/login/page.tsx
-You cannot have two parallel pages that resolve to the same path. Please check /admin/(auth)/login/page and /admin/login/page. Refer to the route group docs for more information: https://nextjs.org/docs/app/building-your-application/routing/route-groups
- ○ Compiling /_not-found ...
- ⨯ src/app/admin/(auth)/login/page.tsx
-You cannot have two parallel pages that resolve to the same path. Please check /admin/(auth)/login/page and /admin/login/page. Refer to the route group docs for more information: https://nextjs.org/docs/app/building-your-application/routing/route-groups
- GET /admin/login 500 in 761ms
- ✓ Compiled /_not-found in 135ms (561 modules)
- GET /admin/login 500 in 15ms
- ✓ Compiled in 122ms (558 modules)
- GET /admin/login 500 in 13ms
- GET /admin/login 500 in 18ms
- ✓ Compiled in 92ms (544 modules)
+ GET /admin/login 200 in 26ms
+ ✓ Compiled /admin in 420ms (785 modules)
+ GET /admin 200 in 523ms
+ ✓ Compiled / in 180ms (775 modules)
+ GET / 200 in 247ms
+ ✓ Compiled /chat in 246ms (792 modules)
+ GET /chat 307 in 338ms
+ ✓ Compiled /auth/signin in 168ms (798 modules)
+ GET /auth/signin?callbackUrl=/chat 200 in 237ms
+ GET /chat 307 in 24ms
+ GET /auth/signin?callbackUrl=/chat 200 in 17ms
+ ✓ Compiled /user/search in 217ms (804 modules)
+ GET /user/search 200 in 259ms
+ ✓ Compiled /user/profile in 213ms (810 modules)
+ GET /user/profile 200 in 252ms
+ GET /admin 200 in 24ms
+ ✓ Compiled in 451ms (388 modules)
+   Reload env: .env.local
+ ✓ Compiled in 96ms (374 modules)

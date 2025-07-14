@@ -18,6 +18,27 @@ export default function AdminLoginPage() {
     setLoading(true)
 
     try {
+      // API 호출로 인증
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/auth`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password })
+      })
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        localStorage.setItem('admin_session', 'true')
+        localStorage.setItem('admin_email', email)
+        localStorage.setItem('admin_token', data.token)
+        router.replace('/admin')
+      } else {
+        setError(data.message || '로그인에 실패했습니다.')
+      }
+    } catch (err) {
+      // 백엔드 API가 없으면 임시 로직 사용
       if (email === 'archt723@gmail.com' && password === '1q2w3e2w1q!') {
         localStorage.setItem('admin_session', 'true')
         localStorage.setItem('admin_email', email)
@@ -25,8 +46,6 @@ export default function AdminLoginPage() {
       } else {
         setError('이메일 또는 비밀번호가 올바르지 않습니다.')
       }
-    } catch (err) {
-      setError('로그인 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
