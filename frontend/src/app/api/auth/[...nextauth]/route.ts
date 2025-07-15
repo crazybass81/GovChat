@@ -156,7 +156,6 @@ const authConfig = {
   debug: process.env.NODE_ENV === 'development',
 };
 
-const { handlers, auth, signIn, signOut } = NextAuth(authConfig);
+const handler = NextAuth(authConfig);
 
-export const GET = handlers.GET;
-export const POST = handlers.POST;
+export { handler as GET, handler as POST };

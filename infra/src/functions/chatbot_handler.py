@@ -33,7 +33,12 @@ conversation_engine = ConversationEngine()
 def handler(event, context):
     """통합 챗봇 핸들러"""
     try:
-        body = json.loads(event.get('body', '{}'))
+
+        
+        # API 레지스트리 요청 처리
+        if body.get('action') == 'auto_register':
+            from functions.api_registry_handler import auto_register_api
+            return auto_register_api(body.get('apiInfo', ''))
         
         logger.info("Chatbot request received", extra={"body_keys": list(body.keys())})
         

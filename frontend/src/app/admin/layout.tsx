@@ -2,6 +2,7 @@
 
 import React, { ReactNode } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 
 interface AdminLayoutProps {
@@ -9,7 +10,13 @@ interface AdminLayoutProps {
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
+    const pathname = usePathname()
     const { isAuthenticated, loading, logout } = useAdminAuth()
+
+    // 로그인 페이지는 인증 체크 건너뛰기
+    if (pathname === '/admin/login') {
+        return <>{children}</>
+    }
 
     if (loading) {
         return (

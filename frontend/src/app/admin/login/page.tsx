@@ -1,16 +1,17 @@
 'use client'
 
 import React, { useState } from 'react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
 export default function AdminLoginPage() {
-  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string>('')
   const [loading, setLoading] = useState(false)
+  const router = useRouter()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -18,34 +19,19 @@ export default function AdminLoginPage() {
     setLoading(true)
 
     try {
-      // API 호출로 인증
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/admin/auth`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password })
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
       })
-      
-      const data = await response.json()
-      
-      if (data.success) {
-        localStorage.setItem('admin_session', 'true')
-        localStorage.setItem('admin_email', email)
-        localStorage.setItem('admin_token', data.token)
-        router.replace('/admin')
-      } else {
-        setError(data.message || '로그인에 실패했습니다.')
-      }
-    } catch (err) {
-      // 백엔드 API가 없으면 임시 로직 사용
-      if (email === 'archt723@gmail.com' && password === '1q2w3e2w1q!') {
-        localStorage.setItem('admin_session', 'true')
-        localStorage.setItem('admin_email', email)
-        router.replace('/admin')
+
+      if (result?.ok) {
+        router.push('/admin')
       } else {
         setError('이메일 또는 비밀번호가 올바르지 않습니다.')
       }
+    } catch (err) {
+      setError('로그인 중 오류가 발생했습니다.')
     } finally {
       setLoading(false)
     }
@@ -81,7 +67,7 @@ export default function AdminLoginPage() {
         </Button>
         
         <div className="mt-4 text-xs text-gray-500 text-center">
-          관리자 계정: archt723@gmail.com
+          관리자 계정: admin@govchat.ai / admin123
         </div>
       </form>
     </div>

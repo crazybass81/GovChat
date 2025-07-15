@@ -30,7 +30,7 @@ function chatReducer(state: ChatState, action: ChatAction): ChatState {
     case 'SET_SESSION':
       return { ...state, sessionId: action.sessionId }
     case 'CLEAR_CHAT':
-      return { messages: [], isLoading: false, userProfile: {} }
+      return { messages: [], isLoading: false, userProfile: { id: '', name: '', email: '' } }
     default:
       return state
   }
@@ -41,7 +41,7 @@ export function useChat() {
   const [state, dispatch] = useReducer(chatReducer, {
     messages: [],
     isLoading: false,
-    userProfile: {}
+    userProfile: { id: '', name: '', email: '' }
   })
 
   const QUERY_KEYS = {
@@ -65,7 +65,7 @@ export function useChat() {
     const userMessage: ChatMessage = {
       role: 'user',
       content: sanitizedContent,
-      timestamp: new Date(),
+      timestamp: new Date().toISOString(),
       id: Date.now().toString()
     }
 
@@ -86,7 +86,7 @@ export function useChat() {
       const assistantMessage: ChatMessage = {
         role: 'assistant',
         content: assistantContent,
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         id: (Date.now() + 1).toString()
       }
 
@@ -106,7 +106,7 @@ export function useChat() {
         const followUpMessage: ChatMessage = {
           role: 'assistant',
           content: DOMPurify.sanitize(response.data.followUpQuestion),
-          timestamp: new Date(),
+          timestamp: new Date().toISOString(),
           id: (Date.now() + 2).toString()
         }
 
@@ -119,7 +119,7 @@ export function useChat() {
       const errorMessage: ChatMessage = {
         role: 'assistant',
         content: '죄송합니다. 일시적인 오류가 발생했습니다. 다시 시도해주세요.',
-        timestamp: new Date(),
+        timestamp: new Date().toISOString(),
         id: (Date.now() + 1).toString()
       }
 

@@ -1,22 +1,30 @@
-import { NextResponse } from 'next/server'
-import type { NextRequest } from 'next/server'
+import { withAuth } from 'next-auth/middleware'
 
-export default function middleware(req: NextRequest) {
-  // 보안 헤더만 적용 (인증은 페이지 레벨에서 처리)
-  const response = NextResponse.next()
-  response.headers.set('X-Frame-Options', 'DENY')
-  response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
-  response.headers.set(
-    'Content-Security-Policy', 
-    "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline';"
-  )
-  
-  return response
-}
+export default withAuth(
+  function middleware(req) {
+    // 관리자 페이지 접근 시에만 인증 체크
+  },
+  {
+    callbacks: {
+      authorized: ({ token, req }) => {
+        // 관리자 페이지가 아니면 항상 허용
+        if (!req.nextUrl.pathname.startsWith('/admin')) {
+          return true
+        }
+        
+        // 관리자 로그인 페이지는 허용
+        if (req.nextUrl.pathname === '/admin/login') {
+          return true
+        }
+        
+        // 관리자 페이지는 인증된 관리자만 허용
+        const adminEmails = ['admin@govchat.ai', 'archt723@gmail.com']
+        return !!token && adminEmails.includes(token.email as string)
+      },
+    },
+  }
+)
 
 export const config = {
-  matcher: [
-    '/((?!api/auth|_next/static|_next/image|favicon.ico).*)',
-  ],
+  matcher: ['/admin/:path*']
 }

@@ -1,33 +1,27 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { useEffect } from 'react'
+
+const ADMIN_EMAILS = ['admin@govchat.ai', 'archt723@gmail.com']
 
 export function useAdminAuth() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [loading, setLoading] = useState(true)
+  const { data: session, status } = useSession()
   const router = useRouter()
+  const loading = status === 'loading'
+  
+  const isAdmin = session?.user?.email && ADMIN_EMAILS.includes(session.user.email)
+  const isAuthenticated = !!session && isAdmin
 
   useEffect(() => {
-    const checkAuth = () => {
-      const adminSession = localStorage.getItem('admin_session')
-      const adminEmail = localStorage.getItem('admin_email')
-      
-      if (adminSession === 'true' && adminEmail === 'archt723@gmail.com') {
-        setIsAuthenticated(true)
-      } else {
-        setIsAuthenticated(false)
-        router.push('/admin/login')
-      }
-      setLoading(false)
+    if (!loading && !isAuthenticated) {
+      router.push('/admin/login')
     }
+  }, [loading, isAuthenticated, router])
 
-    checkAuth()
-  }, [router])
-
-  const logout = () => {
-    localStorage.removeItem('admin_session')
-    localStorage.removeItem('admin_email')
+  const logout = async () => {
+    await signOut({ redirect: false })
     router.push('/admin/login')
   }
 
