@@ -18,8 +18,7 @@ export default withAuth(
         }
         
         // 관리자 페이지는 인증된 관리자만 허용
-        const adminEmails = ['admin@govchat.ai', 'archt723@gmail.com']
-        return !!token && adminEmails.includes(token.email as string)
+        return !!token && (token.role === 'admin' || token.role === 'master')
       },
     },
   }

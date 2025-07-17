@@ -3,6 +3,9 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import { UrlPolicyModal } from '@/components/admin/UrlPolicyModal'
+import { DocumentPolicyModal } from '@/components/admin/DocumentPolicyModal'
+import { ApiPolicyModal } from '@/components/admin/ApiPolicyModal'
 
 interface Policy {
   policy_id: string
@@ -26,6 +29,12 @@ export default function PoliciesPage() {
   const [discoveredPolicies, setDiscoveredPolicies] = useState<DiscoveredPolicy[]>([])
   const [loading, setLoading] = useState(true)
   const [discoveryLoading, setDiscoveryLoading] = useState(true)
+  const [pipelineLoading, setPipelineLoading] = useState(false)
+  
+  // 모달 상태
+  const [showUrlModal, setShowUrlModal] = useState(false)
+  const [showDocModal, setShowDocModal] = useState(false)
+  const [showApiModal, setShowApiModal] = useState(false)
 
   useEffect(() => {
     fetchPolicies()
@@ -82,6 +91,12 @@ export default function PoliciesPage() {
   const handleDataGovLogin = () => {
     window.open('https://auth.data.go.kr/sso/common-login', '_blank')
   }
+  
+  // 정책 등록 성공 후 처리
+  const handlePolicySuccess = () => {
+    fetchPolicies()
+    alert('정책이 등록되었습니다. 처리가 완료되면 목록에 표시됩니다.')
+  }
 
   const handleDiscoveryAction = async (id: string, action: 'approve' | 'reject') => {
     try {
@@ -99,6 +114,35 @@ export default function PoliciesPage() {
     }
   }
 
+  const handleRunPipeline = async () => {
+    setPipelineLoading(true)
+    try {
+      const response = await fetch('/api/admin/run-pipeline', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ apiId: 'latest' })
+      })
+      
+      const result = await response.json()
+      
+      if (result.success) {
+        alert(`✅ ${result.message}\n\n총 ${result.totalProcessed}개 데이터 처리 완료\n\n` +
+          `• ${result.details.apiExtraction}\n` +
+          `• ${result.details.webCrawling}\n` +
+          `• ${result.details.aiAnalysis}\n` +
+          `• ${result.details.dbStorage}\n` +
+          `• ${result.details.searchIndex}`)
+        fetchPolicies() // 새로 처리된 데이터 로드
+      } else {
+        alert('❌ 파이프라인 실행 실패: ' + result.error)
+      }
+    } catch (error) {
+      alert('파이프라인 실행 중 오류가 발생했습니다.')
+    } finally {
+      setPipelineLoading(false)
+    }
+  }
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">정책 관리</h2>
@@ -107,17 +151,49 @@ export default function PoliciesPage() {
         <Button onClick={handleDataGovLogin} className="bg-blue-600 hover:bg-blue-700">
           정책등록(data.go.kr)
         </Button>
-        <Link href="/admin/policies/new/document">
-          <Button className="bg-blue-500 hover:bg-blue-600">
-            정책등록(공고문)
-          </Button>
-        </Link>
-        <Link href="/admin/api-management">
-          <Button className="bg-blue-700 hover:bg-blue-800">
-            정책등록(API키)
-          </Button>
-        </Link>
+        <Button 
+          onClick={() => setShowUrlModal(true)} 
+          className="bg-blue-500 hover:bg-blue-600"
+        >
+          정책등록(URL 입력)
+        </Button>
+        <Button 
+          onClick={() => setShowDocModal(true)} 
+          className="bg-blue-500 hover:bg-blue-600"
+        >
+          정책등록(공고문)
+        </Button>
+        <Button 
+          onClick={() => setShowApiModal(true)} 
+          className="bg-blue-700 hover:bg-blue-800"
+        >
+          정책등록(API 정보)
+        </Button>
+        <Button 
+          onClick={handleRunPipeline}
+          className="bg-green-600 hover:bg-green-700"
+          disabled={pipelineLoading}
+        >
+          {pipelineLoading ? '파이프라인 실행 중...' : '데이터 파이프라인 실행'}
+        </Button>
       </div>
+      
+      {/* 정책 등록 모달 */}
+      <UrlPolicyModal 
+        isOpen={showUrlModal} 
+        onClose={() => setShowUrlModal(false)} 
+        onSuccess={handlePolicySuccess} 
+      />
+      <DocumentPolicyModal 
+        isOpen={showDocModal} 
+        onClose={() => setShowDocModal(false)} 
+        onSuccess={handlePolicySuccess} 
+      />
+      <ApiPolicyModal 
+        isOpen={showApiModal} 
+        onClose={() => setShowApiModal(false)} 
+        onSuccess={handlePolicySuccess} 
+      />
       {loading ? (
         <div className="text-center py-8">로딩 중...</div>
       ) : (

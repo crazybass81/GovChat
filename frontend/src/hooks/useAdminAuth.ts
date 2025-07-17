@@ -4,14 +4,12 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 
-const ADMIN_EMAILS = ['admin@govchat.ai', 'archt723@gmail.com']
-
 export function useAdminAuth() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const loading = status === 'loading'
   
-  const isAdmin = session?.user?.email && ADMIN_EMAILS.includes(session.user.email)
+  const isAdmin = session?.user?.role === 'admin' || session?.user?.role === 'master'
   const isAuthenticated = !!session && isAdmin
 
   useEffect(() => {

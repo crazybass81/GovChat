@@ -3,6 +3,7 @@
 import React, { ReactNode } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { useAdminAuth } from '@/hooks/useAdminAuth'
 
 interface AdminLayoutProps {
@@ -11,6 +12,7 @@ interface AdminLayoutProps {
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
     const pathname = usePathname()
+    const { data: session } = useSession()
     const { isAuthenticated, loading, logout } = useAdminAuth()
 
     // 로그인 페이지는 인증 체크 건너뛰기
@@ -45,6 +47,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                     <Link href="/admin/users" className="block px-3 py-2 rounded hover:bg-gray-200">
                         사용자 목록
                     </Link>
+                    {session?.user?.role === 'master' && (
+                        <Link href="/admin/admins" className="block px-3 py-2 rounded hover:bg-gray-200">
+                            관리자 관리
+                        </Link>
+                    )}
                 </nav>
                 
                 {/* 로그아웃 버튼 */}

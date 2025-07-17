@@ -49,6 +49,8 @@ def handler(event, context):
         elif method == "POST" and path == "/policies/{id}:publish":
             policy_id = event["pathParameters"]["id"]
             return _publish_policy(policy_id, headers)
+        elif method == "POST" and path == "/admin/api-registry":
+            return _handle_api_registry(event.get("body", "{}"), headers)
         else:
             return {
                 "statusCode": 404,
@@ -298,3 +300,48 @@ def _publish_policy(policy_id: str, headers: dict):
     except Exception as e:
         logger.error(f"Publish policy error: {e}")
         raise
+
+
+@tracer.capture_method
+def _handle_api_registry(body: str, headers: dict):
+    """API 레지스트리 처리"""
+    try:
+        data = json.loads(body)
+        action = data.get('action')
+        
+        if action == 'save_api_config':
+            config = data.get('config', {})
+            
+            # DynamoDB에 API 설정 저장
+            api_item = {
+                "id": config.get('id'),
+                "name": config.get('name'),
+                "url": config.get('url'),
+                "serviceKey": config.get('serviceKey'),
+                "type": "government_api",
+                "status": "active",
+                "createdAt": config.get('createdAt')
+            }
+            
+            policies_table.put_item(Item=api_item)
+            logger.info(f"API config saved: {config.get('id')}")
+            
+            return {
+                "statusCode": 200,
+                "headers": headers,
+                "body": json.dumps({"success": True, "saved": 1})
+            }
+        
+        return {
+            "statusCode": 400,
+            "headers": headers,
+            "body": json.dumps({"error": "Invalid action"})
+        }
+        
+    except Exception as e:
+        logger.error(f"API registry error: {e}")
+        return {
+            "statusCode": 500,
+            "headers": headers,
+            "body": json.dumps({"error": "Internal server error"})
+        }

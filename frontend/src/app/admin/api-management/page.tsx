@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function ApiManagementPage() {
   const [apiInfo, setApiInfo] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState<any>(null);
+  const [opensearchStatus, setOpensearchStatus] = useState<any>(null);
+  const [checkingStatus, setCheckingStatus] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,9 +30,52 @@ export default function ApiManagementPage() {
     }
   };
 
+  // OpenSearch 상태 확인
+  const checkOpenSearchStatus = async () => {
+    setCheckingStatus(true);
+    try {
+      const response = await fetch('/api/admin/opensearch-status');
+      const data = await response.json();
+      setOpensearchStatus(data);
+    } catch (error) {
+      setOpensearchStatus({
+        status: 'error',
+        message: '상태 확인 중 오류가 발생했습니다.'
+      });
+    } finally {
+      setCheckingStatus(false);
+    }
+  };
+
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">API 자동 등록</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">API 자동 등록</h1>
+        <button
+          onClick={checkOpenSearchStatus}
+          disabled={checkingStatus}
+          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 disabled:opacity-50"
+        >
+          {checkingStatus ? 'OpenSearch 상태 확인 중...' : 'OpenSearch 상태 확인'}
+        </button>
+      </div>
+
+      {opensearchStatus && (
+        <div className={`mb-6 p-4 rounded-lg ${opensearchStatus.status === 'ok' ? 'bg-green-50' : 'bg-red-50'}`}>
+          <h3 className="font-bold mb-2">
+            {opensearchStatus.status === 'ok' ? '✅ OpenSearch 정상' : '❌ OpenSearch 오류'}
+          </h3>
+          <p>{opensearchStatus.message}</p>
+          {opensearchStatus.details && (
+            <div className="mt-2 text-sm">
+              <p><strong>클러스터 상태:</strong> {opensearchStatus.details.clusterStatus}</p>
+              <p><strong>인덱스 존재:</strong> {opensearchStatus.details.indexExists ? '예' : '아니오'}</p>
+              <p><strong>노드 수:</strong> {opensearchStatus.details.numberOfNodes}</p>
+              <p><strong>활성 샤드:</strong> {opensearchStatus.details.activePrimaryShards}</p>
+            </div>
+          )}
+        </div>
+      )}
       
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>

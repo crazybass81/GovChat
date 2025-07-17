@@ -7,16 +7,15 @@
 **배포 정보**
 - AWS 계정: `036284794745`
 - 리전: `us-east-1` (버지니아 북부)
-- 배포일: 2025-01-13 (최종 업데이트)
+- 배포일: 2025-07-15 (최종 업데이트)
 - 아키텍처: 서버리스 (Next.js + API Gateway + Lambda + DynamoDB + OpenSearch)
 
 ## 🏗️ CloudFormation 스택
 
 ### 1. **GovChatStack** (메인 애플리케이션)
-- **스택 ID**: `arn:aws:cloudformation:us-east-1:036284794745:stack/GovChatStack/ab69ac50-5ebb-11f0-9a9a-0e3bb289c72b`
 - **상태**: `UPDATE_COMPLETE`
-- **생성일**: 2025-01-12 01:00:58 UTC
-- **최종 업데이트**: 2025-01-13 23:51:20 UTC
+- **생성일**: 2025-07-13 23:28:45 UTC
+- **최종 업데이트**: 2025-07-15 04:46:58 UTC
 
 **주요 출력값**:
 - **API 엔드포인트**: `https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/`
@@ -24,14 +23,17 @@
 - **알람 토픽**: `arn:aws:sns:us-east-1:036284794745:GovChat-Alarms`
 
 ### 2. **GovChatAuthStack** (인증 시스템)
-- **상태**: `UPDATE_COMPLETE`
-- **생성일**: 2025-01-12 09:25:28 UTC
-- **최종 업데이트**: 2025-01-12 11:47:34 UTC
+- **상태**: `CREATE_COMPLETE`
+- **생성일**: 2025-07-13 23:25:25 UTC
 
 ### 3. **GovChatLayerStack** (Lambda 레이어)
 - **상태**: `CREATE_COMPLETE`
-- **생성일**: 2025-01-13 10:15:30 UTC
+- **생성일**: 2025-07-13 23:18:49 UTC
 - **레이어 개수**: 4개 (AWS Core, Data, Powertools, Search-Security)
+
+### 4. **GovChat-Network** (네트워크 인프라)
+- **상태**: `CREATE_COMPLETE`
+- **생성일**: 2025-07-10 21:09:57 UTC
 
 ## 🔧 Lambda 함수들
 
@@ -40,16 +42,20 @@
 | 함수명 | 핸들러 | 메모리 | 타임아웃 | 용도 | 상태 |
 |--------|---------|---------|----------|------|------|
 | **ChatbotLambda** | `functions.chatbot_handler.handler` | 512MB | 30초 | 챗봇 대화 처리 | ✅ |
-| **SearchLambda** | `functions.search_handler.handler` | 256MB | 30초 | 정책 검색 | ❌ |
+| **SearchLambda** | `functions.search_handler.handler` | 256MB | 30초 | 정책 검색 | ✅ |
 | **MatchLambda** | `functions.match_handler.handler` | 256MB | 30초 | 정책 매칭 | ✅ |
 | **ExtractLambda** | `functions.extract_handler.handler` | 256MB | 30초 | 데이터 추출 | ✅ |
 | **PolicyLambda** | `functions.policy_handler.handler` | 256MB | 30초 | 정책 관리 | ✅ |
 | **UserAuthLambda** | `functions.user_auth_handler.handler` | 256MB | 30초 | 사용자 인증 | ✅ |
 | **AdminAuthLambda** | `functions.admin_auth_handler.handler` | 256MB | 30초 | 관리자 인증 | ✅ |
 | **UserProfileLambda** | `functions.user_profile_handler.handler` | 256MB | 30초 | 사용자 프로필 | ✅ |
+| **ExternalSyncLambda** | `functions.external_data_sync_handler.handler` | 256MB | 30초 | 외부 데이터 동기화 | ✅ |
 
 ### 인증 함수 (Node.js 20.x)
 - **JwtAuthorizerFunction**: JWT 토큰 검증 (128MB, 30초)
+
+### 유틸리티 함수 (Node.js 22.x)
+- **CustomS3AutoDeleteObjectsCustomResource**: S3 자동 정리 (128MB, 30초)
 
 ### 공통 환경변수
 ```bash
@@ -145,14 +151,17 @@ https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/
 - **API Gateway**: 1개
 - **OpenSearch 컬렉션**: 1개
 
-## 🧪 헬스체크 결과 (2025-01-13)
+## 🧪 헬스체크 결과 (2025-07-15)
 
 | 엔드포인트 | 상태 | 응답시간 | 비고 |
 |-----------|------|----------|------|
 | /question | ✅ OK | 0.69s | 정상 동작 |
+| /search | ✅ OK | 0.046s | 정상 동작 |
 | /extract | ✅ OK | 1.12s | 정상 동작 |
 | /match | ✅ OK | 0.68s | 정상 동작 |
-| /search | ❌ FAIL | - | **수정 필요** |
+| /policies | ✅ OK | - | 정상 동작 |
+| /auth | ✅ OK | - | 정상 동작 |
+| /profile | ✅ OK | - | 정상 동작 |
 
 ## 🔗 외부 접근 URL
 
@@ -186,28 +195,36 @@ curl https://l2iyczn1ge.execute-api.us-east-1.amazonaws.com/prod/search?q=창업
 # ❌ 오류 발생 - 수정 필요
 ```
 
-## 🎯 즉시 해결 필요 사항
+## 🎯 다음 작업 우선순위
 
-### 1. /search 엔드포인트 수정
-- **현재 상태**: 오류 발생
-- **예상 원인**: OpenSearch 연결 또는 쿼리 오류
-- **수정 위치**: `infra/src/functions/search_handler.py`
+### 🚨 긴급 (즉시 필요)
+1. **환경변수 설정**
+   ```bash
+   OPENAI_API_KEY=your-openai-api-key
+   GOV_API_KEY=0259O7/MNmML1Vc3Q2zGYep/IdldHAOqicKRLBU4TllZmDrPwGdRMZas3F4ZIA0ccVHIv/dxa+UvOzEtsxCRzA==
+   ```
 
-### 2. 외부 공공데이터 API 연동
-- **API 키**: `0259O7/...==` (환경변수 설정 필요)
-- **구현 위치**: `infra/src/functions/external_data_sync_handler.py`
+2. **OpenSearch 인덱스 생성**
+   - 벡터 매핑 활성화
+   - 임베딩 인덱싱 시작
 
-### 3. OpenSearch 벡터 검색 완성
-- **현재 상태**: 컬렉션 생성 완료, 인덱싱 미완성
-- **필요 작업**: 임베딩 생성 로직 구현
+3. **실제 데이터 동기화**
+   - K-Startup API 연동
+   - 정책 데이터 임베딩 생성
+
+### ⚠️ 중요 (단기 목표)
+4. **관리자 대시보드 완성**
+5. **사용자 인터페이스 개선**
+6. **성능 최적화**
 
 ## 📅 배포 히스토리
 
-- **2025-01-10**: 네트워크 인프라 구축
-- **2025-01-12**: 메인 애플리케이션 배포 (GovChatStack)
-- **2025-01-12**: 인증 시스템 추가 (GovChatAuthStack)
-- **2025-01-13**: Lambda 레이어 배포 (GovChatLayerStack)
-- **2025-01-13**: 헬스체크 및 문서 업데이트
+- **2025-07-10**: 네트워크 인프라 구축 (GovChat-Network)
+- **2025-07-13**: Lambda 레이어 배포 (GovChatLayerStack)
+- **2025-07-13**: 인증 시스템 배포 (GovChatAuthStack)
+- **2025-07-13**: 메인 애플리케이션 배포 (GovChatStack)
+- **2025-07-15**: Lambda 함수 업데이트 및 안정화
+- **2025-07-15**: 모든 API 엔드포인트 정상화
 
 ---
 

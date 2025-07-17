@@ -21,21 +21,64 @@ const dynamoClient = DynamoDBDocument.from(new DynamoDBClient({
   }),
 }));
 
-// 이메일/비밀번호 인증을 위한 사용자 검증 함수
+// 통합 사용자 검증 함수
 async function verifyCredentials(email: string, password: string) {
   try {
-    // TODO: DynamoDB에서 사용자 조회 및 비밀번호 검증
-    // 현재는 더미 구현
-    if (email === 'admin@govchat.ai' && password === 'admin123') {
-      return {
-        id: '1',
-        email: 'admin@govchat.ai',
-        name: 'Admin User',
-      };
+    // UserTable에서 사용자 조회
+    const result = await dynamoClient.get({
+      TableName: 'UserTable',
+      Key: { email }
+    });
+    
+    const user = result.Item;
+    
+    // 사용자가 존재하지 않거나 비밀번호가 없는 경우
+    if (!user || !user.password_hash) {
+      // 기본 마스터 계정 지원 (환경변수 사용)
+      const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@govchat.ai';
+      const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
+      
+      if (email === defaultAdminEmail && password === defaultAdminPassword) {
+        return {
+          id: email,
+          email: email,
+          name: 'Master Admin',
+          role: 'master'
+        };
+      }
+      return null;
     }
-    return null;
+    
+    // 비밀번호 검증
+    const isValid = await bcrypt.compare(password, user.password_hash);
+    if (!isValid) return null;
+    
+    // 계정 활성화 확인
+    if (!user.active) return null;
+    
+    // 인증 성공
+    return {
+      id: email,
+      email: email,
+      name: user.name || email.split('@')[0],
+      role: user.user_type || 'user' // user_type 필드 사용
+    };
   } catch (error) {
     console.error('Credential verification error:', error);
+    
+    // 기본 마스터 계정 지원 (환경변수 사용)
+    const defaultAdminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@govchat.ai';
+    const defaultAdminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'admin123';
+    
+    if (email === defaultAdminEmail && password === defaultAdminPassword) {
+      return {
+        id: email,
+        email: email,
+        name: 'Master Admin',
+        role: 'master'
+      };
+    }
+    
     return null;
   }
 }
@@ -137,6 +180,10 @@ const authConfig = {
       }
       if (user) {
         token.userId = user.id;
+        // 관리자 역할 정보 추가
+        if (user.role) {
+          token.role = user.role;
+        }
       }
       return token;
     },
@@ -145,6 +192,10 @@ const authConfig = {
       if (token) {
         session.user.id = token.userId as string;
         session.provider = token.provider as string;
+        // 관리자 역할 정보 추가
+        if (token.role) {
+          session.user.role = token.role as string;
+        }
       }
       return session;
     },

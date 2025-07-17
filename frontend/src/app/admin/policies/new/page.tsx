@@ -20,8 +20,8 @@ export default function NewPolicyPage() {
     return <div className="p-8">로딩 중...</div>
   }
 
-  if (!session || session.user?.email !== 'archt723@gmail.com') {
-    router.push('/auth/signin')
+  if (!session || (session.user?.role !== 'admin' && session.user?.role !== 'master')) {
+    router.push('/admin/login')
     return null
   }
 

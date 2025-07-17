@@ -258,7 +258,19 @@ class InfraStack(Stack):
             encryption_key=self.kms_key,
         )
 
-        # B1: 사용자 테이블
+        # 통합 사용자 테이블 (일반, 관리자, 마스터)
+        self.users_table = dynamodb.Table(
+            self,
+            "UsersTable",
+            table_name="Users",
+            partition_key=dynamodb.Attribute(name="email", type=dynamodb.AttributeType.STRING),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
+            removal_policy=cdk.RemovalPolicy.DESTROY,
+            encryption=dynamodb.TableEncryption.CUSTOMER_MANAGED,
+            encryption_key=self.kms_key,
+        )
+        
+        # 기존 UserTable (호환성 유지)
         self.user_table = dynamodb.Table(
             self,
             "UserTable",
@@ -488,6 +500,11 @@ class InfraStack(Stack):
 
             if func == self.user_auth_lambda:
                 self.user_table.grant_read_write_data(func)
+                self.users_table.grant_read_write_data(func)
+                
+            # 관리자 관리 기능을 위한 Users 테이블 권한
+            if func in [self.admin_auth_lambda, self.policy_lambda]:
+                self.users_table.grant_read_write_data(func)
 
             # OpenSearch 권한
             func.add_to_role_policy(

@@ -3,6 +3,7 @@
 import React, { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 
@@ -66,8 +67,14 @@ export default function AdminLoginPage() {
           {loading ? '로그인 중...' : '로그인'}
         </Button>
         
-        <div className="mt-4 text-xs text-gray-500 text-center">
-          관리자 계정: admin@govchat.ai / admin123
+        <div className="mt-4 text-xs text-center text-gray-500">
+          <Link href="/admin/forgot-id" className="text-blue-600 hover:underline">
+            아이디 찾기
+          </Link>
+          <span className="mx-2 text-gray-400">|</span>
+          <Link href="/admin/forgot-password" className="text-blue-600 hover:underline">
+            비밀번호 재설정
+          </Link>
         </div>
       </form>
     </div>
